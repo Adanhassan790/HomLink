@@ -146,6 +146,12 @@ REST_FRAMEWORK = {
 }
 
 # CORS
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='https://homlink-production.up.railway.app',
+    cast=lambda v: [s.strip() for s in v.split(',')]
+)
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:8000',
