@@ -1,0 +1,557 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/jpeg" href="images/logo.jfif">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - HomLink</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <style>
+        body { background: #F1F5F9; }
+
+        .dash-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: calc(100vh - 65px);
+        }
+
+        /* ====== SIDEBAR ====== */
+        .dash-sidebar {
+            background: #0F172A;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 65px;
+            height: calc(100vh - 65px);
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            padding: var(--spacing-xl) var(--spacing-lg);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-brand .brand { font-size: var(--font-size-xl); font-weight: 800; color: white; }
+        .sidebar-brand .role  { font-size: var(--font-size-xs); color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+        .sidebar-nav { padding: var(--spacing-md) 0; flex: 1; }
+
+        .nav-group-label {
+            padding: var(--spacing-md) var(--spacing-lg) var(--spacing-sm);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.35);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: 10px var(--spacing-lg);
+            color: rgba(255,255,255,0.65);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover { color: white; background: rgba(255,255,255,0.06); }
+
+        .nav-item.active {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            border-left-color: #1B7F4F;
+        }
+
+        .nav-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+
+        .nav-badge {
+            margin-left: auto;
+            background: #EF4444;
+            color: white;
+            border-radius: var(--radius-full);
+            padding: 2px 7px;
+            font-size: 10px;
+            font-weight: 700;
+            display: none;
+        }
+        .nav-badge.show { display: inline-block; }
+
+        .sidebar-footer {
+            padding: var(--spacing-lg);
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: rgba(255,255,255,0.5);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            transition: color var(--transition-fast);
+        }
+        .logout-btn:hover { color: white; }
+
+        /* ====== MAIN ====== */
+        .dash-main { padding: var(--spacing-xl); overflow-y: auto; }
+
+        /* ====== PAGE HEADER ====== */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xl); }
+        .page-header h1 { font-size: var(--font-size-2xl); color: var(--color-primary); margin: 0; }
+
+        /* ====== STATS ====== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            border-top: 4px solid var(--color-border);
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+        }
+
+        .stat-card.blue   { border-top-color: #3B82F6; }
+        .stat-card.green  { border-top-color: #10B981; }
+        .stat-card.yellow { border-top-color: #F59E0B; }
+        .stat-card.purple { border-top-color: #8B5CF6; }
+        .stat-card.red    { border-top-color: #EF4444; }
+        .stat-card.teal   { border-top-color: #14B8A6; }
+
+        .stat-icon { font-size: 2rem; }
+        .stat-info { flex: 1; }
+        .stat-label { font-size: var(--font-size-xs); color: var(--color-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+        .stat-number { font-size: 1.875rem; font-weight: 800; color: var(--color-primary); line-height: 1; }
+
+        /* ====== TABS ====== */
+        .dash-content { display: none; }
+        .dash-content.active { display: block; }
+
+        /* ====== QUEUE CARDS ====== */
+        .queue-card {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: var(--spacing-md);
+            transition: box-shadow var(--transition-fast);
+        }
+
+        .queue-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+        .queue-card-inner {
+            display: grid;
+            grid-template-columns: 160px 1fr auto;
+            gap: 0;
+        }
+
+        .queue-img {
+            width: 160px;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .queue-info { padding: var(--spacing-lg); }
+        .queue-title { font-size: var(--font-size-lg); font-weight: 700; color: var(--color-primary); margin-bottom: 4px; }
+        .queue-sub   { font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--spacing-sm); }
+        .queue-meta  { display: flex; gap: var(--spacing-md); flex-wrap: wrap; font-size: var(--font-size-xs); color: var(--color-text-muted); }
+        .queue-actions {
+            padding: var(--spacing-lg);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            justify-content: center;
+            border-left: 1px solid var(--color-border);
+            min-width: 160px;
+        }
+
+        /* ====== USER TABLE ====== */
+        .data-table { width: 100%; border-collapse: collapse; background: white; border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .data-table th { background: #F8FAFC; padding: var(--spacing-md) var(--spacing-lg); text-align: left; font-size: var(--font-size-xs); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); font-weight: 700; border-bottom: 1px solid var(--color-border); }
+        .data-table td { padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--color-border); font-size: var(--font-size-sm); color: var(--color-text); }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: #F8FAFC; }
+
+        .role-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .role-tenant   { background: #DBEAFE; color: #1D4ED8; }
+        .role-landlord { background: #EDE9FE; color: #6D28D9; }
+        .role-admin    { background: #FEF3C7; color: #92400E; }
+
+        .verify-badge  { background: #D1FAE5; color: #065F46; }
+        .pending-badge { background: #FEF3C7; color: #92400E; }
+
+        /* ====== SECTION CARD ====== */
+        .section-card { background: white; border-radius: var(--radius-lg); box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: var(--spacing-xl); overflow: hidden; }
+        .section-card-header { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-lg) var(--spacing-xl); border-bottom: 1px solid var(--color-border); }
+        .section-card-header h2 { font-size: var(--font-size-lg); color: var(--color-primary); margin: 0; }
+        .section-card-body { padding: var(--spacing-xl); }
+
+        /* ====== EMPTY STATE ====== */
+        .empty-state { text-align: center; padding: var(--spacing-2xl); color: var(--color-text-muted); }
+        .empty-icon  { font-size: 3rem; margin-bottom: var(--spacing-md); }
+        .empty-state h3 { color: var(--color-text); }
+
+        /* ====== ANALYTICS ====== */
+        .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg); }
+        .analytics-card { background: white; border-radius: var(--radius-lg); border: 1px solid var(--color-border); padding: var(--spacing-lg); }
+        .analytics-card h4 { font-size: var(--font-size-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); margin-bottom: var(--spacing-lg); }
+        .perf-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--color-border); font-size: var(--font-size-sm); }
+        .perf-row:last-child { border-bottom: none; }
+
+        /* ====== REJECTION MODAL ====== */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+
+        @media (max-width: 900px) {
+            .dash-layout { grid-template-columns: 1fr; }
+            .dash-sidebar { display: none; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .analytics-grid { grid-template-columns: 1fr; }
+            .queue-card-inner { grid-template-columns: 1fr; }
+            .queue-img { width: 100%; height: 160px; }
+            .queue-actions { border-left: none; border-top: 1px solid var(--color-border); flex-direction: row; }
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+
+    <div class="dash-layout">
+        <!-- SIDEBAR -->
+        <aside class="dash-sidebar">
+            <div class="sidebar-brand">
+                <div class="brand">HomLink</div>
+                <div class="role">Admin Panel</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-group-label">Main</div>
+                <button class="nav-item active" onclick="switchSection('overview')" id="nav-overview">
+                    <span class="nav-icon">📊</span> Overview
+                </button>
+
+                <div class="nav-group-label">Verification</div>
+                <button class="nav-item" onclick="switchSection('landlord-queue')" id="nav-landlord-queue">
+                    <span class="nav-icon">👤</span> Landlord Verification
+                    <span class="nav-badge" id="badge-landlords">0</span>
+                </button>
+                <button class="nav-item" onclick="switchSection('property-queue')" id="nav-property-queue">
+                    <span class="nav-icon">🏠</span> Property Approvals
+                    <span class="nav-badge" id="badge-properties">0</span>
+                </button>
+
+                <div class="nav-group-label">Platform</div>
+                <button class="nav-item" onclick="switchSection('users')" id="nav-users">
+                    <span class="nav-icon">👥</span> All Users
+                </button>
+                <button class="nav-item" onclick="switchSection('revenue')" id="nav-revenue">
+                    <span class="nav-icon">💰</span> Revenue
+                </button>
+                <button class="nav-item" onclick="switchSection('reports')" id="nav-reports">
+                    <span class="nav-icon">🚨</span> Reports
+                    <span class="nav-badge" id="badge-reports">0</span>
+                </button>
+                <button class="nav-item" onclick="switchSection('analytics')" id="nav-analytics">
+                    <span class="nav-icon">📈</span> Analytics
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logoutUser()">🚪 Logout</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="dash-main">
+
+            <!-- ===== OVERVIEW ===== -->
+            <div id="overview" class="dash-content active">
+                <div class="page-header"><h1>Admin Overview</h1></div>
+
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Total Users</div>
+                            <div class="stat-number" id="stat-users">—</div>
+                        </div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon">🏠</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Total Properties</div>
+                            <div class="stat-number" id="stat-properties">—</div>
+                        </div>
+                    </div>
+                    <div class="stat-card yellow">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Pending Approvals</div>
+                            <div class="stat-number" id="stat-pending">—</div>
+                        </div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-icon">👤</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Unverified Landlords</div>
+                            <div class="stat-number" id="stat-unverified">—</div>
+                        </div>
+                    </div>
+                    <div class="stat-card teal">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Verified Landlords</div>
+                            <div class="stat-number" id="stat-verified">—</div>
+                        </div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-icon">🚨</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Open Reports</div>
+                            <div class="stat-number" id="stat-reports">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick access queues -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-lg);">
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Landlord Queue</h2>
+                            <button class="btn btn-sm btn-secondary" onclick="switchSection('landlord-queue')">View all</button>
+                        </div>
+                        <div class="section-card-body" id="overview-landlords">
+                            <p style="color:var(--color-text-muted);text-align:center;">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Property Queue</h2>
+                            <button class="btn btn-sm btn-secondary" onclick="switchSection('property-queue')">View all</button>
+                        </div>
+                        <div class="section-card-body" id="overview-properties">
+                            <p style="color:var(--color-text-muted);text-align:center;">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== LANDLORD VERIFICATION QUEUE ===== -->
+            <div id="landlord-queue" class="dash-content">
+                <div class="page-header"><h1>Landlord Verification Queue</h1></div>
+                <div id="landlord-queue-container">
+                    <div class="empty-state"><div class="empty-icon">👤</div><h3>Loading...</h3></div>
+                </div>
+            </div>
+
+            <!-- ===== PROPERTY APPROVAL QUEUE ===== -->
+            <div id="property-queue" class="dash-content">
+                <div class="page-header"><h1>Property Approval Queue</h1></div>
+                <div id="property-queue-container">
+                    <div class="empty-state"><div class="empty-icon">🏠</div><h3>Loading...</h3></div>
+                </div>
+            </div>
+
+            <!-- ===== ALL USERS ===== -->
+            <div id="users" class="dash-content">
+                <div class="page-header"><h1>All Users</h1></div>
+
+                <div style="display:flex;gap:var(--spacing-md);margin-bottom:var(--spacing-lg);flex-wrap:wrap;">
+                    <button class="btn btn-sm btn-secondary user-filter active" onclick="filterUsers('all', this)">All</button>
+                    <button class="btn btn-sm btn-secondary user-filter" onclick="filterUsers('tenant', this)">Students</button>
+                    <button class="btn btn-sm btn-secondary user-filter" onclick="filterUsers('landlord', this)">Landlords</button>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <tr><td colspan="7" style="text-align:center;color:var(--color-text-muted);padding:30px;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== REVENUE ===== -->
+            <div id="revenue" class="dash-content">
+                <div class="page-header"><h1>Revenue</h1></div>
+
+                <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+                    <div class="stat-card green">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Total Revenue</div>
+                            <div class="stat-number" id="rev-total">—</div>
+                        </div>
+                    </div>
+                    <div class="stat-card blue">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Listing Fees</div>
+                            <div class="stat-number" id="rev-listings">—</div>
+                        </div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Featured Upgrades</div>
+                            <div class="stat-number" id="rev-featured">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-card-header"><h2>Payment History</h2></div>
+                    <div class="section-card-body">
+                        <div style="overflow-x:auto;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Landlord</th>
+                                        <th>Property</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>M-Pesa ID</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payments-tbody">
+                                    <tr><td colspan="7" style="text-align:center;color:var(--color-text-muted);padding:30px;">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== REPORTS ===== -->
+            <div id="reports" class="dash-content">
+                <div class="page-header"><h1>Reports &amp; Complaints</h1></div>
+
+                <div class="alert alert-warning" style="margin-bottom:var(--spacing-xl);">
+                    <span>🚨</span>
+                    <span>Review and act on user-submitted reports. Scam listings must be removed immediately.</span>
+                </div>
+
+                <div id="reports-container">
+                    <div class="empty-state">
+                        <div class="empty-icon">✅</div>
+                        <h3>No open reports</h3>
+                        <p>All reports have been handled. Great work!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ANALYTICS ===== -->
+            <div id="analytics" class="dash-content">
+                <div class="page-header"><h1>Platform Analytics</h1></div>
+
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h4>Most Viewed Properties</h4>
+                        <div id="top-properties-views">
+                            <p style="text-align:center;color:var(--color-text-muted);">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Most Active Landlords</h4>
+                        <div id="top-landlords">
+                            <p style="text-align:center;color:var(--color-text-muted);">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Popular Areas (Kilifi)</h4>
+                        <div id="popular-areas">
+                            <p style="text-align:center;color:var(--color-text-muted);">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Property Type Breakdown</h4>
+                        <div id="property-types">
+                            <p style="text-align:center;color:var(--color-text-muted);">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Rejection Modal -->
+    <div id="rejection-modal" class="modal">
+        <div class="modal-content" style="max-width:440px;">
+            <div class="modal-header">
+                <h2>Reject Property</h2>
+                <button class="close-btn" onclick="closeRejectionModal()">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Reason for Rejection</label>
+                <textarea id="rejection-reason" rows="4" placeholder="Explain why this property listing is being rejected..."></textarea>
+            </div>
+            <div style="display:flex;gap:var(--spacing-md);">
+                <button class="btn btn-danger" onclick="submitRejection()">Reject Listing</button>
+                <button class="btn btn-secondary" onclick="closeRejectionModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reject Landlord Modal -->
+    <div id="reject-landlord-modal" class="modal">
+        <div class="modal-content" style="max-width:440px;">
+            <div class="modal-header">
+                <h2>Reject Landlord</h2>
+                <button class="close-btn" onclick="closeRejectLandlordModal()">✕</button>
+            </div>
+            <div class="form-group">
+                <label>Reason</label>
+                <textarea id="reject-landlord-reason" rows="3" placeholder="Reason for rejection..."></textarea>
+            </div>
+            <div style="display:flex;gap:var(--spacing-md);">
+                <button class="btn btn-danger" onclick="submitLandlordRejection()">Reject</button>
+                <button class="btn btn-secondary" onclick="closeRejectLandlordModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/dashboard-admin.js"></script>
+</body>
+</html>

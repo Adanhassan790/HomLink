@@ -1,0 +1,63 @@
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Database
+db.sqlite3
+*.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Media and static files
+media/
+staticfiles/
+/static/
+
+# Logs
+logs/
+*.log
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Celery
+celerybeat-schedule
+
+# Redis
+dump.rdb

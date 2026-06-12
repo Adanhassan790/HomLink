@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: rentconnect_db
+      POSTGRES_USER: rentconnect_user
+      POSTGRES_PASSWORD: rentconnect_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rentconnect_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py seed_data &&
+             python manage.py collectstatic --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://rentconnect_user:rentconnect_password@db:5432/rentconnect_db
+      REDIS_URL: redis://redis:6379/0
+      DEBUG: 'False'
+      SECRET_KEY: django-insecure-dev-secret-key
+      ALLOWED_HOSTS: localhost,127.0.0.1,web
+      FRONTEND_URL: http://localhost:3000
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      MPESA_CONSUMER_KEY: ${MPESA_CONSUMER_KEY}
+      MPESA_CONSUMER_SECRET: ${MPESA_CONSUMER_SECRET}
+      MPESA_PASSKEY: ${MPESA_PASSKEY}
+      MPESA_ENVIRONMENT: sandbox
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/schema/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  celery:
+    build: .
+    command: celery -A config worker -l info
+    environment:
+      DATABASE_URL: postgresql://rentconnect_user:rentconnect_password@db:5432/rentconnect_db
+      REDIS_URL: redis://redis:6379/0
+      DEBUG: 'False'
+      SECRET_KEY: django-insecure-dev-secret-key
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - .:/app
+
+volumes:
+  postgres_data:

@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/jpeg" href="images/logo.jfif">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - HomLink</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <style>
+        .login-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--color-bg);
+            padding: var(--spacing-lg);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--color-white);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: var(--spacing-xl);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .login-header h1 {
+            font-size: var(--font-size-2xl);
+            margin-bottom: var(--spacing-sm);
+            color: var(--color-text);
+        }
+
+        .login-header p {
+            color: var(--color-text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .form-divider {
+            text-align: center;
+            margin: var(--spacing-lg) 0;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-muted);
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: var(--spacing-lg);
+            font-size: var(--font-size-sm);
+        }
+
+        .login-footer a {
+            color: var(--color-accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .form-error-alert {
+            background-color: #FEE2E2;
+            border: 1px solid #FCA5A5;
+            border-radius: 8px;
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            color: #991B1B;
+            display: none;
+        }
+
+        .form-error-alert.show {
+            display: block;
+        }
+
+        @media (max-width: 640px) {
+            .login-page {
+                padding: var(--spacing-md);
+            }
+
+            .login-container {
+                padding: var(--spacing-lg);
+            }
+
+            .login-header h1 {
+                font-size: var(--font-size-xl);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+
+    <main class="login-page">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>HomLink</h1>
+                <p>Login to your account</p>
+            </div>
+
+            <div id="error-alert" class="form-error-alert"></div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username or Email</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder="Enter your username or email"
+                        required
+                        autocomplete="username"
+                    >
+                    <span class="form-error" id="username-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter your password"
+                        required
+                        autocomplete="current-password"
+                    >
+                    <span class="form-error" id="password-error"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </form>
+
+            <div class="login-footer">
+                <p>
+                    Don't have an account?
+                    <a href="register.html">Sign up here</a>
+                </p>
+                <p style="margin-top: var(--spacing-sm);">
+                    Forgot your password or locked out?
+                    <a href="https://wa.me/254757734299?text=Hi%20HomLink%2C%20I%20need%20help%20accessing%20my%20account.%20Username%3A%20"
+                       target="_blank" rel="noopener"
+                       style="color: var(--color-accent); font-weight: 600;">
+                        Message Admin on WhatsApp
+                    </a>
+                </p>
+                <p style="margin-top: var(--spacing-sm);">
+                    <a href="index.html" style="color: var(--color-text-muted); font-weight: normal;">← Back to home</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="js/login.js"></script>
+</body>
+</html>

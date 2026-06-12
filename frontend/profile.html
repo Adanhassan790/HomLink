@@ -1,0 +1,275 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/jpeg" href="images/logo.jfif">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile – HomLink</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <style>
+        body { background: #f4f6f9; }
+
+        .pf-wrap {
+            max-width: 760px;
+            margin: 40px auto;
+            padding: 0 20px 60px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* ── Card base ── */
+        .pf-card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #e9ecf0;
+            overflow: hidden;
+        }
+        .pf-card-head {
+            padding: 18px 24px;
+            border-bottom: 1px solid #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .pf-card-head h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1A2B4A;
+            margin: 0;
+        }
+        .pf-card-body { padding: 24px; }
+
+        /* ── Hero card ── */
+        .pf-hero {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .pf-avatar-wrap { position: relative; flex-shrink: 0; }
+        .pf-avatar {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: linear-gradient(135deg, #1A2B4A 0%, #1B7F4F 100%);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; font-weight: 800; color: #fff;
+            letter-spacing: -.5px;
+        }
+        .pf-avatar img {
+            width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
+        }
+        .pf-hero-info { flex: 1; min-width: 0; }
+        .pf-hero-name {
+            font-size: 22px; font-weight: 800; color: #1A2B4A; margin: 0 0 4px;
+        }
+        .pf-hero-meta {
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+            font-size: 13px; color: #6b7280;
+        }
+        .pf-role-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+        }
+        .pf-role-badge.tenant   { background: #dbeafe; color: #1e40af; }
+        .pf-role-badge.landlord { background: #d1fae5; color: #065f46; }
+        .pf-role-badge.admin    { background: #fef3c7; color: #92400e; }
+
+        .pf-verify-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+        }
+        .pf-verify-badge.verified   { background: #d1fae5; color: #065f46; }
+        .pf-verify-badge.unverified { background: #fef3c7; color: #92400e; }
+        .pf-verify-badge svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+
+        /* ── Form grid ── */
+        .pf-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .pf-grid-full { grid-column: 1 / -1; }
+
+        .pf-field { display: flex; flex-direction: column; gap: 6px; }
+        .pf-field label {
+            font-size: 12px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .05em; color: #6b7280;
+        }
+        .pf-field input,
+        .pf-field textarea,
+        .pf-field select {
+            padding: 10px 14px;
+            border: 1px solid #e5e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1A2B4A;
+            background: #f9fafb;
+            outline: none;
+            transition: border .15s, background .15s;
+            font-family: inherit;
+        }
+        .pf-field input:focus,
+        .pf-field textarea:focus,
+        .pf-field select:focus { border-color: #1B7F4F; background: #fff; }
+        .pf-field input[readonly],
+        .pf-field input:disabled {
+            background: #f0f2f5; color: #9ca3af; cursor: not-allowed;
+        }
+        .pf-field textarea { resize: vertical; min-height: 80px; }
+        .pf-field-hint { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+
+        /* ── Stat pills ── */
+        .pf-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+        .pf-stat {
+            flex: 1; min-width: 100px;
+            background: #f4f6f9; border-radius: 10px;
+            padding: 14px 16px; text-align: center;
+        }
+        .pf-stat-val { font-size: 22px; font-weight: 800; color: #1A2B4A; }
+        .pf-stat-lbl { font-size: 11px; color: #6b7280; margin-top: 2px; }
+
+        /* ── Buttons ── */
+        .pf-btn-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        .pf-save {
+            padding: 10px 24px;
+            background: #1B7F4F; color: #fff;
+            border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 700; cursor: pointer;
+            transition: background .15s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .pf-save:hover { background: #166c42; }
+        .pf-save:disabled { opacity: .6; cursor: not-allowed; }
+        .pf-save svg { width: 15px; height: 15px; stroke: #fff; fill: none; stroke-width: 2.5; }
+
+        .pf-logout {
+            padding: 10px 20px;
+            background: #fff; color: #ef4444;
+            border: 1px solid #fca5a5; border-radius: 8px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            transition: background .15s;
+        }
+        .pf-logout:hover { background: #fee2e2; }
+
+        /* ── Alert ── */
+        .pf-alert {
+            padding: 12px 16px; border-radius: 8px;
+            font-size: 13px; font-weight: 600;
+            display: none; align-items: center; gap: 8px;
+            margin-bottom: 8px;
+        }
+        .pf-alert.show { display: flex; }
+        .pf-alert.success { background: #d1fae5; color: #065f46; }
+        .pf-alert.error   { background: #fee2e2; color: #b91c1c; }
+        .pf-alert svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5; flex-shrink: 0; }
+
+        /* ── Loading skeleton ── */
+        .pf-skel-line {
+            height: 14px; border-radius: 7px;
+            background: linear-gradient(90deg, #f0f2f5 25%, #e5e8ed 50%, #f0f2f5 75%);
+            background-size: 200%; animation: skel 1.4s infinite;
+        }
+        @keyframes skel { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+        @media (max-width: 600px) {
+            .pf-grid { grid-template-columns: 1fr; }
+            .pf-grid-full { grid-column: 1; }
+            .pf-hero { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+
+    <div class="pf-wrap">
+
+        <!-- ── Hero / identity card ── -->
+        <div class="pf-card">
+            <div class="pf-card-body">
+                <div class="pf-hero">
+                    <div class="pf-avatar-wrap">
+                        <div class="pf-avatar" id="pf-avatar-initials">…</div>
+                    </div>
+                    <div class="pf-hero-info">
+                        <h1 class="pf-hero-name" id="pf-full-name">Loading…</h1>
+                        <div class="pf-hero-meta">
+                            <span class="pf-role-badge" id="pf-role-badge">–</span>
+                            <span id="pf-joined" style="font-size:12px;color:#9ca3af"></span>
+                            <span class="pf-verify-badge" id="pf-verify-badge" style="display:none"></span>
+                        </div>
+                        <p style="font-size:13px;color:#6b7280;margin:8px 0 0" id="pf-username-display"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Edit basic info ── -->
+        <div class="pf-card">
+            <div class="pf-card-head"><h2>Personal Information</h2></div>
+            <div class="pf-card-body">
+                <div id="pf-basic-alert" class="pf-alert"></div>
+                <div class="pf-grid">
+                    <div class="pf-field">
+                        <label>First Name</label>
+                        <input type="text" id="pf-first-name" placeholder="First name">
+                    </div>
+                    <div class="pf-field">
+                        <label>Last Name</label>
+                        <input type="text" id="pf-last-name" placeholder="Last name">
+                    </div>
+                    <div class="pf-field">
+                        <label>Email</label>
+                        <input type="email" id="pf-email" readonly>
+                        <span class="pf-field-hint">Email cannot be changed</span>
+                    </div>
+                    <div class="pf-field">
+                        <label>Phone Number</label>
+                        <input type="tel" id="pf-phone" placeholder="+254 7XX XXX XXX">
+                    </div>
+                    <div class="pf-field pf-grid-full">
+                        <label>Username</label>
+                        <input type="text" id="pf-username" readonly>
+                        <span class="pf-field-hint">Username cannot be changed</span>
+                    </div>
+                </div>
+                <div class="pf-btn-row">
+                    <button class="pf-save" id="pf-save-basic" onclick="saveBasicInfo()">
+                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Role-specific section ── -->
+        <div class="pf-card" id="pf-role-card" style="display:none">
+            <div class="pf-card-head"><h2 id="pf-role-card-title">Profile Details</h2></div>
+            <div class="pf-card-body" id="pf-role-body"></div>
+        </div>
+
+        <!-- ── Stats (landlord) ── -->
+        <div class="pf-card" id="pf-stats-card" style="display:none">
+            <div class="pf-card-head"><h2>Your Activity</h2></div>
+            <div class="pf-card-body">
+                <div class="pf-stats" id="pf-stats-grid"></div>
+            </div>
+        </div>
+
+        <!-- ── Danger zone ── -->
+        <div class="pf-card">
+            <div class="pf-card-head"><h2>Account</h2></div>
+            <div class="pf-card-body" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+                <a href="javascript:void(0)" class="pf-logout" onclick="doLogout()">Sign out of HomLink</a>
+                <a id="pf-dashboard-link" href="#" style="font-size:13px;color:#1B7F4F;font-weight:600;text-decoration:none">
+                    → Go to Dashboard
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module" src="js/profile.js"></script>
+</body>
+</html>

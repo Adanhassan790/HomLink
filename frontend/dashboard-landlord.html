@@ -1,0 +1,750 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/jpeg" href="images/logo.jfif">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landlord Dashboard - HomLink</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <style>
+        /* ====== LAYOUT ====== */
+        body { background: #F1F5F9; }
+
+        .dash-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: calc(100vh - 65px);
+        }
+
+        /* ====== SIDEBAR ====== */
+        .dash-sidebar {
+            background: var(--color-primary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 65px;
+            height: calc(100vh - 65px);
+            overflow-y: auto;
+        }
+
+        .sidebar-profile {
+            padding: var(--spacing-xl) var(--spacing-lg);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        .sidebar-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin: 0 auto var(--spacing-sm);
+        }
+
+        .sidebar-name {
+            font-weight: 700;
+            font-size: var(--font-size-md);
+            margin-bottom: 4px;
+        }
+
+        .sidebar-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .badge-verified { background: #10B981; color: white; }
+        .badge-pending  { background: #F59E0B; color: white; }
+
+        .sidebar-nav { padding: var(--spacing-md) 0; flex: 1; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border-left: 3px solid transparent;
+            border-right: none;
+            border-top: none;
+            border-bottom: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-item:hover { color: white; background: rgba(255,255,255,0.08); }
+
+        .nav-item.active {
+            color: white;
+            background: rgba(255,255,255,0.12);
+            border-left-color: #1B7F4F;
+        }
+
+        .nav-icon { font-size: 1.1rem; width: 20px; text-align: center; flex-shrink: 0; }
+
+        .nav-badge {
+            margin-left: auto;
+            background: #EF4444;
+            color: white;
+            border-radius: var(--radius-full);
+            padding: 2px 7px;
+            font-size: 10px;
+            font-weight: 700;
+            display: none;
+        }
+        .nav-badge.show { display: inline-block; }
+
+        .sidebar-footer {
+            padding: var(--spacing-lg);
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: rgba(255,255,255,0.6);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            transition: color var(--transition-fast);
+        }
+        .logout-btn:hover { color: white; }
+
+        /* ====== MAIN ====== */
+        .dash-main {
+            padding: var(--spacing-xl);
+            overflow-y: auto;
+        }
+
+        /* ====== VERIFICATION BANNER ====== */
+        .verification-banner {
+            background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+            border: 1px solid #FCD34D;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+        }
+
+        .verification-banner .banner-icon { font-size: 2rem; flex-shrink: 0; }
+
+        .banner-text h3 {
+            color: #92400E;
+            font-size: var(--font-size-md);
+            margin-bottom: 4px;
+        }
+
+        .banner-text p {
+            color: #A16207;
+            font-size: var(--font-size-sm);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* ====== PAGE HEADER ====== */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .page-header h1 {
+            font-size: var(--font-size-2xl);
+            color: var(--color-primary);
+            margin: 0;
+        }
+
+        /* ====== STATS GRID ====== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            border-left: 4px solid var(--color-border);
+            transition: box-shadow var(--transition-fast);
+        }
+
+        .stat-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .stat-card.green  { border-left-color: #10B981; }
+        .stat-card.blue   { border-left-color: #3B82F6; }
+        .stat-card.yellow { border-left-color: #F59E0B; }
+        .stat-card.purple { border-left-color: #8B5CF6; }
+        .stat-card.red    { border-left-color: #EF4444; }
+        .stat-card.teal   { border-left-color: #14B8A6; }
+
+        .stat-label {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--color-primary);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-sub {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-muted);
+        }
+
+        /* ====== SECTION CARDS ====== */
+        .section-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            overflow: hidden;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .section-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .section-card-header h2 {
+            font-size: var(--font-size-lg);
+            color: var(--color-primary);
+            margin: 0;
+        }
+
+        .section-card-body { padding: var(--spacing-xl); }
+
+        /* ====== TABS ====== */
+        .dash-content { display: none; }
+        .dash-content.active { display: block; }
+
+        /* ====== PROPERTY CARDS ====== */
+        .property-list { display: flex; flex-direction: column; gap: var(--spacing-md); }
+
+        .property-row {
+            display: grid;
+            grid-template-columns: 100px 1fr auto;
+            gap: var(--spacing-md);
+            align-items: center;
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            border: 1px solid var(--color-border);
+            transition: all var(--transition-fast);
+        }
+
+        .property-row:hover { border-color: var(--color-accent); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+        .property-thumb {
+            width: 100px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            background: var(--color-bg);
+        }
+
+        .prop-title { font-weight: 700; color: var(--color-primary); margin-bottom: 4px; }
+        .prop-meta  { font-size: var(--font-size-xs); color: var(--color-text-muted); display: flex; gap: var(--spacing-md); flex-wrap: wrap; margin-bottom: var(--spacing-sm); }
+        .prop-meta span { display: flex; align-items: center; gap: 4px; }
+
+        .prop-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        .prop-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-active   { background: #D1FAE5; color: #065F46; }
+        .badge-pending  { background: #FEF3C7; color: #92400E; }
+        .badge-occupied { background: #FEE2E2; color: #991B1B; }
+        .badge-featured { background: #EDE9FE; color: #5B21B6; }
+
+        .prop-actions { display: flex; gap: var(--spacing-sm); flex-direction: column; align-items: flex-end; }
+
+        /* ====== INQUIRY CARDS ====== */
+        .inquiry-card {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-left: 4px solid var(--color-accent);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .inq-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--spacing-sm); }
+        .inq-from   { font-weight: 700; color: var(--color-primary); }
+        .inq-date   { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+        .inq-prop   { font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--spacing-sm); }
+        .inq-msg    { font-size: var(--font-size-sm); color: var(--color-text); line-height: 1.6; margin-bottom: var(--spacing-md); }
+
+        /* ====== ANALYTICS ====== */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .analytics-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            padding: var(--spacing-lg);
+        }
+
+        .analytics-card h4 {
+            font-size: var(--font-size-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--color-text-muted);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .perf-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--color-border);
+            font-size: var(--font-size-sm);
+        }
+
+        .perf-row:last-child { border-bottom: none; }
+        .perf-label { color: var(--color-text); font-weight: 500; }
+        .perf-value { font-weight: 700; color: var(--color-primary); }
+
+        /* ====== PROMOTE ====== */
+        .promote-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        .promote-card {
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            text-align: center;
+            transition: all var(--transition-base);
+            cursor: pointer;
+            background: white;
+        }
+
+        .promote-card:hover { border-color: var(--color-accent); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+
+        .promote-card .promo-icon { font-size: 3rem; margin-bottom: var(--spacing-md); }
+        .promote-card h3 { font-size: var(--font-size-lg); margin-bottom: var(--spacing-sm); color: var(--color-primary); }
+        .promote-card p { font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--spacing-lg); }
+        .promote-card .promo-price { font-size: var(--font-size-xl); font-weight: 800; color: var(--color-accent); margin-bottom: var(--spacing-md); }
+
+        .benefit-list { list-style: none; padding: 0; text-align: left; margin-bottom: var(--spacing-lg); }
+        .benefit-list li { font-size: var(--font-size-sm); color: var(--color-text); padding: 4px 0; }
+        .benefit-list li::before { content: '✓ '; color: var(--color-accent); font-weight: 700; }
+
+        /* ====== PROFILE FORM ====== */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+        }
+
+        /* ====== EMPTY STATES ====== */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-2xl);
+            color: var(--color-text-muted);
+        }
+
+        .empty-icon { font-size: 3.5rem; margin-bottom: var(--spacing-md); }
+        .empty-state h3 { color: var(--color-text); margin-bottom: var(--spacing-sm); }
+
+        /* ====== MOBILE ====== */
+        @media (max-width: 900px) {
+            .dash-layout { grid-template-columns: 1fr; }
+            .dash-sidebar { position: fixed; left: -260px; top: 0; height: 100vh; z-index: 200; transition: left 0.3s ease; }
+            .dash-sidebar.open { left: 0; }
+            .dash-main { padding: var(--spacing-lg) var(--spacing-md); }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .analytics-grid, .promote-options, .profile-grid { grid-template-columns: 1fr; }
+            .property-row { grid-template-columns: 80px 1fr; }
+            .prop-actions { flex-direction: row; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: var(--spacing-md); }
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+
+    <div class="dash-layout">
+        <!-- SIDEBAR -->
+        <aside class="dash-sidebar" id="dash-sidebar">
+            <div class="sidebar-profile">
+                <div class="sidebar-avatar">🏠</div>
+                <div class="sidebar-name" id="sidebar-name">Loading...</div>
+                <span class="sidebar-badge badge-pending" id="verification-badge">⏳ Pending</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" onclick="switchSection('overview')" id="nav-overview">
+                    <span class="nav-icon">📊</span> Overview
+                </button>
+                <button class="nav-item" onclick="switchSection('properties')" id="nav-properties">
+                    <span class="nav-icon">🏠</span> My Properties
+                    <span class="nav-badge" id="badge-pending-props">0</span>
+                </button>
+                <button class="nav-item" onclick="switchSection('inquiries')" id="nav-inquiries">
+                    <span class="nav-icon">💬</span> Inquiries
+                    <span class="nav-badge" id="badge-inquiries">0</span>
+                </button>
+                <button class="nav-item" onclick="switchSection('analytics')" id="nav-analytics">
+                    <span class="nav-icon">📈</span> Analytics
+                </button>
+                <button class="nav-item" onclick="switchSection('promote')" id="nav-promote">
+                    <span class="nav-icon">⭐</span> Promote
+                </button>
+                <button class="nav-item" onclick="switchSection('account')" id="nav-account">
+                    <span class="nav-icon">👤</span> Account
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logoutUser()">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="dash-main">
+
+            <!-- Verification Banner (shown when not verified) -->
+            <div class="verification-banner" id="verification-banner" style="display:none;">
+                <div class="banner-icon">⏳</div>
+                <div class="banner-text">
+                    <h3>Account Pending Verification</h3>
+                    <p>HomLink is verifying your landlord account. Our team will contact you within 24–48 hours. You'll be able to post listings once verified.</p>
+                </div>
+            </div>
+
+            <!-- ===== OVERVIEW ===== -->
+            <div id="overview" class="dash-content active">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                    <a href="create-listing.html" class="btn btn-primary" id="new-listing-btn" style="display:none;">+ New Listing</a>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card green">
+                        <div class="stat-label">Active Listings</div>
+                        <div class="stat-number" id="stat-active">0</div>
+                        <div class="stat-sub">Live & available</div>
+                    </div>
+                    <div class="stat-card yellow">
+                        <div class="stat-label">Pending Approval</div>
+                        <div class="stat-number" id="stat-pending">0</div>
+                        <div class="stat-sub">Under review</div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-label">Occupied</div>
+                        <div class="stat-number" id="stat-occupied">0</div>
+                        <div class="stat-sub">Currently rented</div>
+                    </div>
+                    <div class="stat-card blue">
+                        <div class="stat-label">Total Views</div>
+                        <div class="stat-number" id="stat-views">0</div>
+                        <div class="stat-sub">All time</div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-label">Inquiries</div>
+                        <div class="stat-number" id="stat-inquiries">0</div>
+                        <div class="stat-sub">From students</div>
+                    </div>
+                    <div class="stat-card teal">
+                        <div class="stat-label">Featured</div>
+                        <div class="stat-number" id="stat-featured">0</div>
+                        <div class="stat-sub">Promoted listings</div>
+                    </div>
+                </div>
+
+                <!-- Recent Properties -->
+                <div class="section-card">
+                    <div class="section-card-header">
+                        <h2>Recent Listings</h2>
+                        <button class="btn btn-sm btn-secondary" onclick="switchSection('properties')">View all</button>
+                    </div>
+                    <div class="section-card-body">
+                        <div id="recent-listings-container">
+                            <!-- Replaced by JS after verification check -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Inquiries -->
+                <div class="section-card">
+                    <div class="section-card-header">
+                        <h2>Recent Inquiries</h2>
+                        <button class="btn btn-sm btn-secondary" onclick="switchSection('inquiries')">View all</button>
+                    </div>
+                    <div class="section-card-body">
+                        <div id="recent-inquiries-container">
+                            <div class="empty-state">
+                                <div class="empty-icon">💬</div>
+                                <h3>No inquiries yet</h3>
+                                <p>Inquiries from students will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== MY PROPERTIES ===== -->
+            <div id="properties" class="dash-content">
+                <div class="page-header">
+                    <h1>My Properties</h1>
+                    <a href="create-listing.html" class="btn btn-primary" id="new-listing-btn-2">+ New Listing</a>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div style="display:flex; gap:var(--spacing-md); margin-bottom:var(--spacing-lg); flex-wrap:wrap;">
+                    <button class="btn btn-sm btn-secondary prop-filter active" data-filter="all" onclick="filterProps('all', this)">All</button>
+                    <button class="btn btn-sm btn-secondary prop-filter" data-filter="active" onclick="filterProps('active', this)">Active</button>
+                    <button class="btn btn-sm btn-secondary prop-filter" data-filter="pending" onclick="filterProps('pending', this)">Pending</button>
+                    <button class="btn btn-sm btn-secondary prop-filter" data-filter="occupied" onclick="filterProps('occupied', this)">Occupied</button>
+                </div>
+
+                <div id="all-listings-container" class="property-list">
+                    <div class="empty-state">
+                        <div class="empty-icon">🏠</div>
+                        <h3>Loading properties...</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== INQUIRIES ===== -->
+            <div id="inquiries" class="dash-content">
+                <div class="page-header">
+                    <h1>Messages &amp; Inquiries</h1>
+                </div>
+
+                <div style="display:flex; gap:var(--spacing-md); margin-bottom:var(--spacing-lg);">
+                    <button class="btn btn-sm btn-secondary inq-filter active" data-status="all" onclick="filterInquiries('all', this)">All</button>
+                    <button class="btn btn-sm btn-secondary inq-filter" data-status="pending" onclick="filterInquiries('pending', this)">Pending</button>
+                    <button class="btn btn-sm btn-secondary inq-filter" data-status="responded" onclick="filterInquiries('responded', this)">Responded</button>
+                </div>
+
+                <div id="inquiries-container">
+                    <div class="empty-state">
+                        <div class="empty-icon">💬</div>
+                        <h3>Loading inquiries...</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ANALYTICS ===== -->
+            <div id="analytics" class="dash-content">
+                <div class="page-header">
+                    <h1>Analytics</h1>
+                </div>
+
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h4>Top Properties by Views</h4>
+                        <div id="analytics-views">
+                            <p style="color:var(--color-text-muted);text-align:center;padding:20px;">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Top Properties by Inquiries</h4>
+                        <div id="analytics-inquiries">
+                            <p style="color:var(--color-text-muted);text-align:center;padding:20px;">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Top Properties by Favorites</h4>
+                        <div id="analytics-favorites">
+                            <p style="color:var(--color-text-muted);text-align:center;padding:20px;">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Performance Summary</h4>
+                        <div id="analytics-summary">
+                            <p style="color:var(--color-text-muted);text-align:center;padding:20px;">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== PROMOTE ===== -->
+            <div id="promote" class="dash-content">
+                <div class="page-header">
+                    <h1>Promote Your Property</h1>
+                </div>
+
+                <div class="alert alert-info" style="margin-bottom:var(--spacing-xl);">
+                    <span>💡</span>
+                    <span>Promote your listing to get more visibility and fill vacancies faster.</span>
+                </div>
+
+                <div class="promote-options">
+                    <div class="promote-card" onclick="openPromoteModal('featured')">
+                        <div class="promo-icon">⭐</div>
+                        <h3>Featured Listing</h3>
+                        <div class="promo-price">KES 500 / 7 days</div>
+                        <ul class="benefit-list">
+                            <li>Appears first in search results</li>
+                            <li>Featured on the homepage</li>
+                            <li>Gold star badge on your listing</li>
+                            <li>3× more student views</li>
+                        </ul>
+                        <button class="btn btn-primary btn-block">Promote Now</button>
+                    </div>
+                    <div class="promote-card" onclick="openPromoteModal('premium')">
+                        <div class="promo-icon">🏆</div>
+                        <h3>Premium Listing</h3>
+                        <div class="promo-price">KES 1,000 / 30 days</div>
+                        <ul class="benefit-list">
+                            <li>Everything in Featured</li>
+                            <li>Priority placement for 30 days</li>
+                            <li>Highlighted in search results</li>
+                            <li>5× more student views</li>
+                        </ul>
+                        <button class="btn btn-primary btn-block">Promote Now</button>
+                    </div>
+                </div>
+
+                <!-- Promote Modal -->
+                <div id="promote-modal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 id="modal-title">Promote Listing</h2>
+                            <button class="close-btn" onclick="closePromoteModal()">✕</button>
+                        </div>
+                        <div class="form-group">
+                            <label>Select Property</label>
+                            <select id="promote-property-select">
+                                <option value="">Choose a property...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>M-Pesa Phone Number</label>
+                            <input type="tel" id="promote-phone" placeholder="0712 345 678">
+                            <span class="form-hint">You will receive an M-Pesa prompt on this number.</span>
+                        </div>
+                        <div style="display:flex;gap:var(--spacing-md);">
+                            <button class="btn btn-primary" onclick="submitPromotion()">Pay with M-Pesa</button>
+                            <button class="btn btn-secondary" onclick="closePromoteModal()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== ACCOUNT ===== -->
+            <div id="account" class="dash-content">
+                <div class="page-header">
+                    <h1>My Account</h1>
+                </div>
+
+                <!-- Verification Status Card -->
+                <div class="section-card" style="margin-bottom:var(--spacing-xl);">
+                    <div class="section-card-header">
+                        <h2>Verification Status</h2>
+                    </div>
+                    <div class="section-card-body">
+                        <div id="account-verification-status">
+                            <div style="display:flex;align-items:center;gap:var(--spacing-md);">
+                                <span id="acct-verify-icon" style="font-size:2.5rem;">⏳</span>
+                                <div>
+                                    <div id="acct-verify-title" style="font-size:var(--font-size-lg);font-weight:700;color:var(--color-primary);">Pending Verification</div>
+                                    <div id="acct-verify-desc" style="font-size:var(--font-size-sm);color:var(--color-text-muted);">Our team will contact you within 24–48 hours.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Form -->
+                <div class="section-card">
+                    <div class="section-card-header">
+                        <h2>Profile Information</h2>
+                    </div>
+                    <div class="section-card-body">
+                        <div class="profile-grid">
+                            <div class="form-group">
+                                <label for="acct-first-name">First Name</label>
+                                <input type="text" id="acct-first-name">
+                            </div>
+                            <div class="form-group">
+                                <label for="acct-last-name">Last Name</label>
+                                <input type="text" id="acct-last-name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="acct-email">Email Address</label>
+                            <input type="email" id="acct-email" readonly style="background:#f5f5f5;cursor:not-allowed;">
+                        </div>
+                        <div class="form-group">
+                            <label for="acct-phone">Phone Number</label>
+                            <input type="tel" id="acct-phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="acct-whatsapp">WhatsApp Number</label>
+                            <input type="tel" id="acct-whatsapp" placeholder="0712 345 678">
+                        </div>
+                        <div class="form-group">
+                            <label for="acct-bio">About You</label>
+                            <textarea id="acct-bio" rows="3" placeholder="Tell students about yourself as a landlord..."></textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script type="module" src="js/dashboard-landlord.js"></script>
+</body>
+</html>

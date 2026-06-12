@@ -1,0 +1,807 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/jpeg" href="images/logo.jfif">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Listing - HomLink</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { background: #F1F5F9; }
+
+        .wizard-page {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: var(--spacing-xl) var(--spacing-md);
+        }
+
+        /* ====== PROGRESS ====== */
+        .wizard-progress {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-lg) var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .progress-header h2 {
+            font-size: var(--font-size-lg);
+            color: var(--color-primary);
+            margin: 0;
+        }
+
+        .progress-step-info {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-muted);
+        }
+
+        .progress-bar-track {
+            height: 6px;
+            background: var(--color-border);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+            border-radius: var(--radius-full);
+            transition: width 0.4s ease;
+        }
+
+        .step-dots {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .step-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--color-border);
+            color: var(--color-text-muted);
+            transition: all 0.3s;
+            cursor: default;
+        }
+
+        .step-dot.active    { background: var(--color-primary); color: white; }
+        .step-dot.completed { background: var(--color-accent); color: white; }
+
+        /* ====== STEP CARD ====== */
+        .step-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            padding: var(--spacing-2xl);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .step-card-header {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .step-card-header h3 {
+            font-size: var(--font-size-xl);
+            color: var(--color-primary);
+            margin-bottom: 6px;
+        }
+
+        .step-card-header p {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-muted);
+            margin: 0;
+        }
+
+        .step-content { display: none; }
+        .step-content.active { display: block; }
+
+        /* ====== FORM ====== */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+        .form-row .form-group { margin-bottom: 0; }
+
+        /* ====== AMENITIES ====== */
+        .amenity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .amenity-item {
+            position: relative;
+        }
+
+        .amenity-item input[type="checkbox"] { display: none; }
+
+        .amenity-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--spacing-md);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: center;
+            gap: 6px;
+        }
+
+        .amenity-label:hover { border-color: var(--color-accent); }
+
+        .amenity-item input:checked + .amenity-label {
+            border-color: var(--color-accent);
+            background: rgba(27,127,79,0.06);
+        }
+
+        .amenity-icon { font-size: 1.5rem; }
+        .amenity-name { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text); }
+
+        /* ====== PHOTO UPLOAD ====== */
+        .photo-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .photo-section h4 {
+            font-size: var(--font-size-md);
+            color: var(--color-primary);
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .photo-section h4 .badge {
+            font-size: 11px;
+            background: var(--color-accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+
+        .upload-zone:hover { border-color: var(--color-accent); background: rgba(27,127,79,0.03); }
+        .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .upload-zone .upload-icon { font-size: 2rem; margin-bottom: var(--spacing-sm); }
+        .upload-zone p { font-size: var(--font-size-sm); color: var(--color-text-muted); margin: 0; }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+        }
+
+        .photo-preview {
+            position: relative;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            aspect-ratio: 4/3;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ====== VIDEO UPLOAD ====== */
+        .video-upload {
+            border: 2px dashed var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            position: relative;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .video-upload:hover { border-color: var(--color-accent); }
+        .video-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .video-preview { margin-top: var(--spacing-md); padding: var(--spacing-md); background: var(--color-bg); border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; }
+
+        /* ====== MAP ====== */
+        .map-container {
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: var(--spacing-lg);
+            position: relative;
+        }
+        #property-map { width: 100%; height: 360px; }
+
+        .map-gps-btn {
+            position: absolute;
+            top: 10px; right: 10px; z-index: 1000;
+            background: #fff;
+            border: 2px solid var(--color-accent);
+            color: var(--color-accent);
+            border-radius: 8px;
+            padding: 7px 14px;
+            font-size: 13px; font-weight: 700;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.12);
+            transition: background .15s, color .15s;
+        }
+        .map-gps-btn:hover { background: var(--color-accent); color: #fff; }
+
+        .map-location-display {
+            background: #f0faf5;
+            border: 1px solid #b7e8d0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: var(--spacing-md);
+            font-size: 13px; color: #065f46;
+            display: none;
+        }
+        .map-location-display.show { display: block; }
+
+        /* ====== PREVIEW ====== */
+        .preview-card {
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+        }
+
+        .preview-hero {
+            height: 220px;
+            background: var(--color-bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-body { padding: var(--spacing-lg); }
+
+        .preview-badges { display: flex; gap: var(--spacing-sm); margin-bottom: var(--spacing-sm); }
+
+        .preview-title { font-size: var(--font-size-xl); font-weight: 700; color: var(--color-primary); margin-bottom: var(--spacing-sm); }
+        .preview-rent  { font-size: var(--font-size-2xl); font-weight: 800; color: var(--color-accent); margin-bottom: var(--spacing-sm); }
+        .preview-meta  { display: flex; gap: var(--spacing-lg); font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--spacing-md); flex-wrap: wrap; }
+        .preview-amenities { display: flex; gap: 6px; flex-wrap: wrap; }
+        .preview-amenity { background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-full); padding: 3px 10px; font-size: 12px; color: var(--color-text); }
+
+        /* ====== PAYMENT ====== */
+        .payment-card {
+            background: linear-gradient(135deg, #1A2B4A, #1B7F4F);
+            color: white;
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-2xl);
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .payment-card h3 { color: white; margin-bottom: var(--spacing-sm); }
+        .payment-card p  { color: rgba(255,255,255,0.8); margin-bottom: var(--spacing-xl); }
+        .payment-amount  { font-size: 3rem; font-weight: 800; color: white; margin-bottom: var(--spacing-sm); }
+        .payment-amount span { font-size: var(--font-size-lg); }
+
+        .mpesa-form { background: white; border-radius: var(--radius-lg); padding: var(--spacing-xl); text-align: left; }
+        .mpesa-logo { font-size: 2rem; margin-bottom: var(--spacing-md); }
+
+        /* ====== SUCCESS ====== */
+        .success-card {
+            text-align: center;
+            padding: var(--spacing-2xl);
+        }
+
+        .success-icon { font-size: 4rem; margin-bottom: var(--spacing-lg); }
+        .success-card h2 { color: var(--color-accent); margin-bottom: var(--spacing-md); }
+        .success-card p  { color: var(--color-text-muted); margin-bottom: var(--spacing-xl); }
+
+        /* ====== NAVIGATION BUTTONS ====== */
+        .step-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .step-nav .left  { display: flex; gap: var(--spacing-md); }
+        .step-nav .right { display: flex; gap: var(--spacing-md); }
+
+        /* ====== RESPONSIVE ====== */
+        @media (max-width: 640px) {
+            .wizard-page  { padding: var(--spacing-md); }
+            .step-card    { padding: var(--spacing-lg); }
+            .form-row     { grid-template-columns: 1fr; }
+            .amenity-grid { grid-template-columns: 1fr 1fr; }
+            .map-coords   { grid-template-columns: 1fr; }
+            .step-nav     { flex-direction: column; gap: 8px; }
+            .step-nav .right { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+            .step-nav .right .btn { width: 100%; justify-content: center; }
+        }
+        @media (max-width: 375px) {
+            .wizard-page  { padding: 10px; }
+            .step-card    { padding: 14px; }
+            .step-dot     { width: 22px; height: 22px; font-size: 9px; }
+            .amenity-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .photo-grid   { grid-template-columns: 1fr 1fr; }
+            .upload-zone  { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+
+    <div class="wizard-page">
+
+        <!-- PROGRESS BAR -->
+        <div class="wizard-progress">
+            <div class="progress-header">
+                <h2 id="progress-title">Step 1 of 10</h2>
+                <div class="progress-step-info" id="progress-subtitle">Basic Information</div>
+            </div>
+            <div class="progress-bar-track">
+                <div class="progress-bar-fill" id="progress-fill" style="width:10%;"></div>
+            </div>
+            <div class="step-dots" id="step-dots"></div>
+        </div>
+
+        <!-- ===== STEP 1: BASIC INFO ===== -->
+        <div id="step-1" class="step-content active">
+            <div class="step-card">
+                <div class="step-card-header">
+                    <h3>📝 Basic Information</h3>
+                    <p>Enter the essential details about your property.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="title">Property Name / Title *</label>
+                    <input type="text" id="title" placeholder="e.g., Modern Bedsitter Near Pwani University">
+                    <span class="form-error" id="err-title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="listing_type">Listing Type *</label>
+                    <select id="listing_type" onchange="toggleListingType(this.value)">
+                        <option value="rent">For Rent</option>
+                        <option value="sale">For Sale</option>
+                    </select>
+                    <span class="form-hint">Choose whether you are renting out or selling this property.</span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="property_type">Property Type *</label>
+                        <select id="property_type">
+                            <option value="">Select type...</option>
+                            <optgroup label="Rental Accommodation" id="opt-rental">
+                                <option value="single_room">Single Room</option>
+                                <option value="bedsitter">Bedsitter</option>
+                                <option value="studio">Studio Apartment</option>
+                                <option value="1br">1 Bedroom</option>
+                                <option value="2br">2 Bedroom</option>
+                                <option value="3br">3 Bedroom</option>
+                                <option value="maisonette">Maisonette</option>
+                                <option value="commercial">Commercial Space</option>
+                            </optgroup>
+                            <optgroup label="For Sale" id="opt-sale">
+                                <option value="land">Land / Plot</option>
+                                <option value="house_sale">House for Sale</option>
+                                <option value="maisonette">Maisonette for Sale</option>
+                                <option value="commercial">Commercial Property</option>
+                            </optgroup>
+                        </select>
+                        <span class="form-error" id="err-property_type"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="location_area">Area *</label>
+                        <select id="location_area">
+                            <option value="">Select area...</option>
+                        </select>
+                        <span class="form-error" id="err-location_area"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="rent_amount" id="rent_amount_label">Monthly Rent (KES) *</label>
+                        <input type="number" id="rent_amount" placeholder="e.g., 5000" min="500">
+                        <span class="form-error" id="err-rent_amount"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="security_deposit">Security Deposit (KES) *</label>
+                        <input type="number" id="security_deposit" placeholder="e.g., 5000" min="0">
+                        <span class="form-error" id="err-security_deposit"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="estate">Estate / Specific Location</label>
+                    <input type="text" id="estate" placeholder="e.g., Plot No. 5, Near Pwani Main Gate">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea id="description" rows="5" placeholder="Describe your property in detail. Mention key features, proximity to campus, what's included in rent, etc."></textarea>
+                    <span class="form-hint" id="desc-count">0 / 50 min characters</span>
+                    <span class="form-error" id="err-description"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="whatsapp_number">Your WhatsApp Number *</label>
+                    <input type="tel" id="whatsapp_number" placeholder="0712 345 678">
+                    <span class="form-hint">Students will contact you on this number.</span>
+                    <span class="form-error" id="err-whatsapp_number"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STEP 2: AMENITIES ===== -->
+        <div id="step-2" class="step-content">
+            <div class="step-card">
+                <div class="step-card-header">
+                    <h3>✅ Amenities</h3>
+                    <p>Select all the amenities available in your property. Honest listings build trust.</p>
+                </div>
+                <div class="amenity-grid" id="amenity-grid"></div>
+                <span class="form-error" id="err-amenities"></span>
+            </div>
+        </div>
+
+        <!-- ===== STEP 3: ROOM PHOTOS ===== -->
+        <div id="step-3" class="step-content">
+            <div class="step-card">
+                <div class="step-card-header">
+                    <h3>📷 Room Photos</h3>
+                    <p>Upload clear, well-lit photos of the interior rooms. Good photos get more inquiries.</p>
+                </div>
+
+                <div class="photo-section">
+                    <h4>🛏 Bedroom <span class="badge">Required</span></h4>
+                    <div class="upload-zone" onclick="triggerUpload('room_bedroom')">
+                        <input type="file" id="room_bedroom" accept="image/*" multiple onchange="handlePhotos('room', 'bedroom', this)">
+                        <div class="upload-icon">📤</div>
+                        <p>Click to upload bedroom photos (JPG/PNG)</p>
+                    </div>
+                    <div class="photo-grid" id="preview-room_bedroom"></div>
+                </div>
+
+                <div class="photo-section">
+                    <h4>🍳 Kitchen</h4>
+                    <div class="upload-zone">
+                        <input type="file" id="room_kitchen" accept="image/*" multiple onchange="handlePhotos('room', 'kitchen', this)">
+                        <div class="upload-icon">📤</div>
+                        <p>Click to upload kitchen photos</p>
+                    </div>
+                    <div class="photo-grid" id="preview-room_kitchen"></div>
+                </div>
+
+                <div class="photo-section">
+                    <h4>🚿 Bathroom</h4>
+                    <div class="upload-zone">
+                        <input type="file" id="room_bathroom" accept="image/*" multiple onchange="handlePhotos('room', 'bathroom', this)">
+                        <div class="upload-icon">📤</div>
+                        <p>Click to upload bathroom photos</p>
+                    </div>
+                    <div class="photo-grid" id="preview-room_bathroom"></div>
+                </div>
+
+                <div class="photo-section">
+                    <h4>🛋 Sitting Room</h4>
+                    <div class="upload-zone">
+                        <input type="file" id="room_sitting" accept="image/*" multiple onchange="handlePhotos('room', 'sitting', this)">
+                        <div class="upload-icon">📤</div>
+                        <p>Click to upload sitting room photos</p>
+                    </div>
+                    <div class="photo-grid" id="preview-room_sitting"></div>
+                </div>
+
+                <span class="form-error" id="err-room-photos"></span>
+            </div>
+        </div>
+
+        <!-- ===== STEP 4: COMPOUND PHOTOS ===== -->
+        <div id="step-4" class="step-content">
+            <div class="step-card">
+                <div class="step-card-header">
+                    <h3>🏡 Compound Photos</h3>
+                    <p>Show students what the compound and outside areas look like.</p>
+                </div>
+
+                <div class="photo-section">
+                    <h4>🚪 Main Gate</h4>
+                    <div class="upload-zone">
+                        <input type="file" id="compound_gate" accept="image/*" multiple onchange="handlePhotos('compound', 'gate', this)">
+                        <div class="upload-icon">📤</div>
+                        <p>Upload main gate photo</p>
+                    </div>
+                    <div class="photo-grid" id="preview-compound_gate"></div>
+                </div>
+
+                <div class="photo-section">
+                    <h4>🚗 Parking Area</h4>
+                    <div class="upload-zone">
+                        <input type="file" id="compound_parking" accept="image/*" multiple onchange="handlePhotos('compound', 'parking', this)">
+                        <div class="upload-icon">📤</div>
+                        <p>Upload parking area photos</p>
+                    </div>
+                    <div class="photo-grid" id="preview-compound_parking"></div>
+                </div>
+
+                <div class="photo-section">
+                    <h4>👕 Clothes Drying Area</h4>
+                    <div class="upload-zone">
+                        <input type="file" id="compound_drying" accept="image/*" multiple onchange="handlePhotos('compound', 'drying', this)">
+                        <div class="upload-icon">📤</div>
+                        <p>Upload drying area photos</p>
+                    </div>
+                    <div class="photo-grid" id="preview-compound_drying"></div>
+                </div>
+
+                <div class="photo-section">
+                    <h4>💧 Water Tanks</h4>
+                    <div class="upload-zone">
+                        <input type="file" id="compound_water" accept="image/*" multiple onchange="handlePhotos('compound', 'water', this)">
+                        <div class="upload-icon">📤</div>
+                        <p>Upload water storage photos</p>
+                    </div>
+                    <div class="photo-grid" id="preview-compound_water"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STEP 5: BUILDING PHOTOS ===== -->
+        <div id="step-5" class="step-content">
+            <div class="step-card">
+                <div class="step-card-header">
+                    <h3>🏢 Building Photos</h3>
+                    <p>Show the exterior of the building. Students want to know what they're looking for.</p>
+                </div>
+
+                <div class="photo-section">
+                    <h4>🏠 Front View <span class="badge">Required</span></h4>
+                    <div class="upload-zone">
+                        <input type="file" id="building_front" accept="image/*" multiple onchange="handlePhotos('building', 'front', this)">
+                        <div class="upload-icon">📤</div>
+                        <p>Upload front view of the building</p>
+                    </div>
+                    <div class="photo-grid" id="preview-building_front"></div>
+                </div>
+
+                <div class="photo-section">
+                    <h4>🚶 Entrance</h4>
+                    <div class="upload-zone">
+                        <input type="file" id="building_entrance" accept="image/*" multiple onchange="handlePhotos('building', 'entrance', this)">
+                        <div class="upload-icon">📤</div>
+                        <p>Upload entrance / reception photos</p>
+                    </div>
+                    <div class="photo-grid" id="preview-building_entrance"></div>
+                </div>
+
+                <div class="photo-section">
+                    <h4>🌳 Exterior</h4>
+                    <div class="upload-zone">
+                        <input type="file" id="building_exterior" accept="image/*" multiple onchange="handlePhotos('building', 'exterior', this)">
+                        <div class="upload-icon">📤</div>
+                        <p>Upload other exterior views</p>
+                    </div>
+                    <div class="photo-grid" id="preview-building_exterior"></div>
+                </div>
+
+                <span class="form-error" id="err-building-photos"></span>
+            </div>
+        </div>
+
+        <!-- ===== STEP 6: VIDEOS ===== -->
+        <div id="step-6" class="step-content">
+            <div class="step-card">
+                <div class="step-card-header">
+                    <h3>🎬 Video Tours</h3>
+                    <p>Upload short video tours (max 60 seconds each). Videos dramatically increase inquiries.</p>
+                </div>
+
+                <div class="photo-section">
+                    <h4>🚶 Walk-through Video</h4>
+                    <div class="video-upload">
+                        <input type="file" id="video_walkthrough" accept="video/*" onchange="handleVideo('walkthrough', this)">
+                        <div class="upload-icon">🎬</div>
+                        <p style="color:var(--color-text-muted);font-size:var(--font-size-sm);">Click to upload walk-through video (max 60 sec)</p>
+                    </div>
+                    <div id="preview-video_walkthrough"></div>
+                </div>
+
+                <div class="photo-section">
+                    <h4>🏡 Compound Video</h4>
+                    <div class="video-upload">
+                        <input type="file" id="video_compound" accept="video/*" onchange="handleVideo('compound', this)">
+                        <div class="upload-icon">🎬</div>
+                        <p style="color:var(--color-text-muted);font-size:var(--font-size-sm);">Click to upload compound video (max 60 sec)</p>
+                    </div>
+                    <div id="preview-video_compound"></div>
+                </div>
+
+                <div class="alert alert-info">
+                    <span>💡</span>
+                    <span>Videos are optional but highly recommended. Properties with video tours receive 3× more views.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STEP 7: LOCATION ===== -->
+        <div id="step-7" class="step-content">
+            <div class="step-card">
+                <div class="step-card-header">
+                    <h3>📍 Where is your property?</h3>
+                    <p>Tap the map to drop a pin on your property, or press <strong>Use My Location</strong> to auto-detect.</p>
+                </div>
+
+                <!-- Location result display -->
+                <div class="map-location-display" id="map-location-display">
+                    📍 <span id="map-location-text">Location selected</span>
+                </div>
+
+                <div class="map-container">
+                    <div id="property-map"></div>
+                    <button class="map-gps-btn" type="button" onclick="useMyLocation()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+                        Use My Location
+                    </button>
+                </div>
+
+                <!-- Hidden fields — populated automatically by map interaction -->
+                <input type="hidden" id="latitude">
+                <input type="hidden" id="longitude">
+
+                <div class="alert alert-info" style="margin-top:0;">
+                    <span>💡</span>
+                    <span>Drag the pin to fine-tune the exact position. Students use this to measure the walking distance from Pwani University.</span>
+                </div>
+
+                <div class="alert alert-info">
+                    <span>💡</span>
+                    <span>Open Google Maps, find your property, right-click and copy coordinates. Paste them above.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STEP 8: PREVIEW ===== -->
+        <div id="step-8" class="step-content">
+            <div class="step-card">
+                <div class="step-card-header">
+                    <h3>👁 Preview Your Listing</h3>
+                    <p>This is exactly how students will see your property. Review before submitting.</p>
+                </div>
+
+                <div class="preview-card">
+                    <div class="preview-hero" id="preview-hero">
+                        <img id="preview-main-img" src="" alt="" style="display:none;">
+                        <div id="preview-no-img" style="display:flex;align-items:center;justify-content:center;height:100%;font-size:4rem;">🏠</div>
+                    </div>
+                    <div class="preview-body">
+                        <div class="preview-badges">
+                            <span class="badge badge-new">New</span>
+                            <span class="badge badge-verified" id="preview-verified" style="display:none;">✓ Verified</span>
+                        </div>
+                        <div class="preview-title" id="preview-title">Your Property Title</div>
+                        <div class="preview-rent" id="preview-rent">KES 0 / month</div>
+                        <div class="preview-meta">
+                            <span>📍 <span id="preview-area">Area</span></span>
+                            <span>🏠 <span id="preview-type">Room Type</span></span>
+                            <span>💳 Deposit: KES <span id="preview-deposit">0</span></span>
+                        </div>
+                        <div class="preview-amenities" id="preview-amenities"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STEP 9: PAYMENT ===== -->
+        <div id="step-9" class="step-content">
+            <div class="step-card">
+                <div class="step-card-header">
+                    <h3>💳 Listing Payment</h3>
+                    <p>Pay the listing fee to submit your property for review.</p>
+                </div>
+
+                <div class="payment-card">
+                    <h3>Listing Fee</h3>
+                    <p>One-time fee to list your property on HomLink</p>
+                    <div class="payment-amount"><span>KES </span>300</div>
+                    <p style="font-size:var(--font-size-xs);">Your listing goes live after admin approval (within 24 hrs)</p>
+                </div>
+
+                <div class="mpesa-form">
+                    <div class="mpesa-logo">📱</div>
+                    <h4 style="margin-bottom:var(--spacing-lg);color:var(--color-primary);">Pay via M-Pesa</h4>
+                    <div class="form-group">
+                        <label for="mpesa_phone">M-Pesa Phone Number</label>
+                        <input type="tel" id="mpesa_phone" placeholder="0712 345 678">
+                        <span class="form-hint">You will receive an M-Pesa prompt on this number.</span>
+                        <span class="form-error" id="err-mpesa_phone"></span>
+                    </div>
+                    <div class="alert alert-info">
+                        <span>ℹ️</span>
+                        <span>After clicking "Pay with M-Pesa", enter your PIN on your phone to complete payment. Do not close this page.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== STEP 10: SUBMITTED ===== -->
+        <div id="step-10" class="step-content">
+            <div class="step-card">
+                <div class="success-card">
+                    <div class="success-icon">🎉</div>
+                    <h2>Listing Submitted!</h2>
+                    <p>Your property has been submitted for review. The HomLink team will review your listing within 24–48 hours. You'll be notified once it's approved and live.</p>
+                    <div style="display:flex;gap:var(--spacing-md);justify-content:center;flex-wrap:wrap;margin-top:var(--spacing-xl);">
+                        <a href="dashboard-landlord.html" class="btn btn-primary">Go to Dashboard</a>
+                        <a href="create-listing.html" class="btn btn-secondary">Create Another Listing</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NAVIGATION BUTTONS -->
+        <div class="step-nav">
+            <div class="left">
+                <button id="prev-btn" class="btn btn-secondary" onclick="goToPrev()" style="display:none;">← Back</button>
+            </div>
+            <div class="right">
+                <a href="dashboard-landlord.html" class="btn btn-secondary" style="font-size:var(--font-size-sm);">Save &amp; Exit</a>
+                <button id="next-btn" class="btn btn-primary" onclick="goToNext()">Next →</button>
+                <button id="pay-btn"  class="btn btn-primary" style="display:none;">💳 Pay KES 300 via M-Pesa</button>
+                <button id="submit-btn" class="btn btn-primary" onclick="submitListing()" style="display:none;">Submit Listing</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/create-listing.js"></script>
+</body>
+</html>

@@ -1,0 +1,1171 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/jpeg" href="images/logo.jfif">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomLink — Student Accommodation Near Pwani University, Kilifi</title>
+    <meta name="description" content="Find verified, affordable student rooms near Pwani University in Kilifi. Browse hundreds of listings from trusted landlords.">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <style>
+        /* ============================================================
+           RESET HELPERS
+        ============================================================ */
+        *, *::before, *::after { box-sizing: border-box; }
+
+        /* ============================================================
+           HERO
+        ============================================================ */
+        .hl-hero {
+            position: relative;
+            min-height: 82vh;
+            background: linear-gradient(155deg, #0B1826 0%, #1A2B4A 50%, #12382A 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #fff;
+            text-align: center;
+            padding: 6rem 1.5rem 5rem;
+        }
+
+        /* grid dot pattern */
+        .hl-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+        }
+
+        /* green glow top */
+        .hl-hero::after {
+            content: '';
+            position: absolute;
+            top: -120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 700px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(27,127,79,0.22) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hl-hero-inner {
+            position: relative;
+            z-index: 1;
+            max-width: 720px;
+            width: 100%;
+        }
+
+        .hl-hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.75);
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            padding: 0.35rem 0.9rem;
+            border-radius: 100px;
+            margin-bottom: 1.5rem;
+        }
+
+        .hl-hero-title {
+            font-size: clamp(2.1rem, 5vw, 3.5rem);
+            font-weight: 800;
+            line-height: 1.12;
+            color: #fff;
+            margin: 0 0 1.1rem;
+            letter-spacing: -0.025em;
+        }
+
+        .hl-hero-title em {
+            font-style: normal;
+            color: #4ade80;
+        }
+
+        .hl-hero-sub {
+            font-size: 1.05rem;
+            color: rgba(255,255,255,0.6);
+            margin: 0 0 2.5rem;
+            line-height: 1.65;
+        }
+
+        /* Search card */
+        .hl-search {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            margin-bottom: 2.75rem;
+        }
+
+        .hl-search-field {
+            padding: 1rem 1.25rem 0.85rem;
+            border-right: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hl-search-field label {
+            font-size: 0.67rem;
+            font-weight: 700;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.3rem;
+        }
+
+        .hl-search-field select,
+        .hl-search-field input {
+            border: none;
+            outline: none;
+            font-size: 0.93rem;
+            font-weight: 600;
+            color: #111827;
+            background: transparent;
+            padding: 0;
+            min-width: 0;
+        }
+
+        .hl-search-field select { cursor: pointer; }
+
+        .hl-search-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #1B7F4F;
+            color: #fff;
+            border: none;
+            padding: 0 2rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.18s;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+        }
+
+        .hl-search-btn:hover { background: #15693f; }
+
+        /* Stats row */
+        .hl-stats {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .hl-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 1.1rem;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 100px;
+        }
+
+        .hl-stat-num {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #4ade80;
+        }
+
+        .hl-stat-label {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.55);
+        }
+
+        /* ============================================================
+           TRUST STRIP
+        ============================================================ */
+        .hl-trust {
+            background: #fff;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .hl-trust-inner {
+            max-width: 1140px;
+            margin: 0 auto;
+            display: flex;
+            align-items: stretch;
+        }
+
+        .hl-trust-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.4rem 2rem;
+            border-right: 1px solid #e9ecef;
+            transition: background 0.15s;
+        }
+
+        .hl-trust-item:last-child { border-right: none; }
+        .hl-trust-item:hover { background: #f9fafb; }
+
+        .hl-trust-svg-wrap {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #f0fdf4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #1B7F4F;
+        }
+
+        .hl-trust-svg-wrap svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .hl-trust-copy strong {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.3;
+            margin-bottom: 0.15rem;
+        }
+
+        .hl-trust-copy span {
+            font-size: 0.775rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        /* ============================================================
+           PROPERTY SECTIONS
+        ============================================================ */
+        .hl-section {
+            padding: 3.5rem 1.5rem;
+        }
+
+        .hl-section-alt {
+            background: #f8f9fc;
+        }
+
+        .hl-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hl-section-hdr {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 1.75rem;
+            gap: 1rem;
+        }
+
+        .hl-section-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: #1B7F4F;
+            background: #f0fdf4;
+            padding: 0.25rem 0.7rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .hl-section-tag svg {
+            width: 11px;
+            height: 11px;
+            fill: currentColor;
+        }
+
+        .hl-section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 0.2rem;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .hl-section-sub {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .hl-view-all {
+            color: #1B7F4F;
+            font-weight: 700;
+            font-size: 0.875rem;
+            text-decoration: none;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            padding: 0.45rem 0.9rem;
+            border: 1.5px solid #1B7F4F;
+            border-radius: 7px;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .hl-view-all:hover {
+            background: #1B7F4F;
+            color: #fff;
+        }
+
+        /* ============================================================
+           PROPERTY CARDS
+        ============================================================ */
+        .hl-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 1.4rem;
+        }
+
+        .prop-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+            outline: none;
+            text-align: left;
+        }
+
+        .prop-card:hover,
+        .prop-card:focus {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-color: #cbd5e1;
+        }
+
+        .prop-card-img-wrap {
+            position: relative;
+            padding-top: 60%;
+            background: #f1f5f9;
+            overflow: hidden;
+        }
+
+        .prop-card-img-wrap img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.45s ease;
+        }
+
+        .prop-card:hover .prop-card-img-wrap img {
+            transform: scale(1.05);
+        }
+
+        .prop-card-no-img {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: #f1f5f9;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .prop-card-no-img svg {
+            width: 36px;
+            height: 36px;
+            stroke: #cbd5e1;
+            fill: none;
+            stroke-width: 1.5;
+        }
+
+        .prop-card-badges {
+            position: absolute;
+            bottom: 0.6rem;
+            left: 0.6rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+
+        .pc-badge {
+            display: inline-block;
+            padding: 0.2rem 0.55rem;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .pc-badge-featured { background: #1e293b; color: #fbbf24; }
+        .pc-badge-verified { background: #1B7F4F; color: #fff; }
+        .pc-badge-campus   { background: rgba(0,0,0,0.65); color: #fff; backdrop-filter: blur(6px); }
+
+        .prop-card-body { padding: 1.1rem 1.2rem 1.25rem; }
+
+        .prop-type-tag {
+            display: inline-block;
+            background: #eff6ff;
+            color: #2563eb;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.18rem 0.55rem;
+            border-radius: 4px;
+            text-transform: capitalize;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.5rem;
+        }
+
+        .prop-card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 0.3rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .prop-card-loc {
+            font-size: 0.82rem;
+            color: #64748b;
+            margin: 0 0 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .prop-card-loc svg {
+            width: 12px;
+            height: 12px;
+            stroke: #94a3b8;
+            fill: none;
+            stroke-width: 2;
+            flex-shrink: 0;
+        }
+
+        .prop-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 0.85rem;
+            margin-top: auto;
+        }
+
+        .prop-card-price {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #1B7F4F;
+            letter-spacing: -0.01em;
+        }
+
+        .prop-card-price span {
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: #94a3b8;
+            margin-left: 1px;
+        }
+
+        .prop-card-cta {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #64748b;
+            transition: color 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .prop-card:hover .prop-card-cta { color: #1B7F4F; }
+
+        /* Skeleton loaders */
+        .prop-skeleton {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .prop-skeleton::before {
+            content: '';
+            display: block;
+            padding-top: 60%;
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+        }
+
+        .skel-body {
+            padding: 1.1rem 1.2rem 1.25rem;
+        }
+
+        .skel-line {
+            height: 10px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            margin-bottom: 0.65rem;
+        }
+
+        .skel-line.wide  { width: 70%; }
+        .skel-line.med   { width: 50%; }
+        .skel-line.short { width: 35%; height: 8px; }
+
+        @keyframes shimmer {
+            0%   { background-position: -200% 0; }
+            100% { background-position:  200% 0; }
+        }
+
+        /* Empty state */
+        .hl-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2.5rem 1rem;
+            border: 1.5px dashed #e2e8f0;
+            border-radius: 12px;
+            background: #fafafa;
+        }
+
+        .hl-empty-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            background: #f1f5f9;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hl-empty-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: #94a3b8;
+            fill: none;
+            stroke-width: 1.5;
+        }
+
+        .hl-empty h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #374151;
+            margin: 0 0 0.4rem;
+        }
+
+        .hl-empty p {
+            font-size: 0.875rem;
+            color: #9ca3af;
+            margin: 0 0 1rem;
+        }
+
+        .hl-empty-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1B7F4F;
+            text-decoration: none;
+        }
+
+        .hl-empty-link:hover { text-decoration: underline; }
+
+        /* ============================================================
+           HOW IT WORKS
+        ============================================================ */
+        .hl-how {
+            padding: 4.5rem 1.5rem;
+            background: #fff;
+            border-top: 1px solid #e9ecef;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .hl-how-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hl-how-tag {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #1B7F4F;
+            margin-bottom: 0.75rem;
+        }
+
+        .hl-how-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hl-how-sub {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .hl-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            max-width: 860px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* connector line */
+        .hl-steps::before {
+            content: '';
+            position: absolute;
+            top: 28px;
+            left: calc(16.66% + 28px);
+            right: calc(16.66% + 28px);
+            height: 2px;
+            background: linear-gradient(90deg, #1B7F4F44, #1B7F4F, #1B7F4F44);
+        }
+
+        .hl-step {
+            text-align: center;
+            padding: 0 2rem;
+        }
+
+        .hl-step-num {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #1B7F4F;
+            color: #1B7F4F;
+            font-size: 1.15rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 0 6px #fff;
+        }
+
+        .hl-step h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 0.6rem;
+        }
+
+        .hl-step p {
+            font-size: 0.865rem;
+            color: #64748b;
+            line-height: 1.65;
+            margin: 0;
+        }
+
+        /* ============================================================
+           DUAL CTA
+        ============================================================ */
+        .hl-cta-section {
+            padding: 4.5rem 1.5rem;
+            background: #f8f9fc;
+        }
+
+        .hl-cta-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .hl-cta-header h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 0.4rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hl-cta-header p {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .hl-cta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .hl-cta-card {
+            border-radius: 16px;
+            padding: 2.25rem 2rem 2rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hl-cta-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .hl-cta-card.student  { background: linear-gradient(145deg, #1A2B4A 0%, #0f1c30 100%); }
+        .hl-cta-card.landlord { background: linear-gradient(145deg, #1B7F4F 0%, #0f5535 100%); }
+
+        .hl-cta-icon-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .hl-cta-icon-wrap svg {
+            width: 22px;
+            height: 22px;
+            stroke: #fff;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .hl-cta-card h3 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 0.6rem;
+        }
+
+        .hl-cta-card p {
+            font-size: 0.88rem;
+            color: rgba(255,255,255,0.65);
+            line-height: 1.65;
+            margin: 0 0 1.5rem;
+            flex: 1;
+        }
+
+        .hl-cta-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+        }
+
+        .hl-cta-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            font-size: 0.845rem;
+            color: rgba(255,255,255,0.75);
+        }
+
+        .hl-cta-list li::before {
+            content: '';
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+            background-size: 10px;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .hl-cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.85rem 1.75rem;
+            border-radius: 9px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+            align-self: flex-start;
+            letter-spacing: 0.01em;
+        }
+
+        .hl-cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+        .hl-cta-btn-white { background: #fff; color: #1A2B4A; }
+        .hl-cta-btn-glass {
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            border: 1.5px solid rgba(255,255,255,0.25);
+        }
+
+        .hl-cta-btn-glass:hover { background: rgba(255,255,255,0.2); }
+
+        /* ============================================================
+           RESPONSIVE
+        ============================================================ */
+        @media (max-width: 900px) {
+            .hl-search {
+                grid-template-columns: 1fr;
+            }
+            .hl-search-field {
+                border-right: none;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            .hl-trust-inner {
+                flex-direction: column;
+            }
+            .hl-trust-item {
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+            }
+            .hl-trust-item:last-child { border-bottom: none; }
+            .hl-steps { grid-template-columns: 1fr; max-width: 380px; }
+            .hl-steps::before { display: none; }
+            .hl-step { padding: 0 1rem; margin-bottom: 2rem; }
+            .hl-cta-grid { grid-template-columns: 1fr; max-width: 480px; }
+            .hl-section-hdr { flex-direction: column; align-items: flex-start; }
+        }
+
+        @media (max-width: 480px) {
+            .hl-hero { min-height: auto; padding: 4.5rem 1rem 3.5rem; }
+            .hl-grid { grid-template-columns: 1fr; }
+            .hl-stats { justify-content: flex-start; }
+            .hl-cta-card { padding: 1.75rem 1.5rem; }
+            .hl-section { padding: 2.5rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+
+    <!-- ================================================
+         HERO
+    ================================================ -->
+    <section class="hl-hero" id="hl-hero">
+        <div class="hl-hero-inner">
+            <div class="hl-hero-pill">
+                <svg width="8" height="8" viewBox="0 0 8 8" fill="#4ade80"><circle cx="4" cy="4" r="4"/></svg>
+                Kilifi, Kenya &nbsp;·&nbsp; Near Pwani University
+            </div>
+
+            <h1 class="hl-hero-title">
+                Find Your Room Near<br>
+                <em>Pwani University</em>
+            </h1>
+
+            <p class="hl-hero-sub">
+                Verified, affordable student accommodation in Kilifi — trusted by students since day one.
+            </p>
+
+            <form class="hl-search" id="hero-search-form">
+                <div class="hl-search-field">
+                    <label>Area</label>
+                    <select id="area-filter" name="location_area">
+                        <option value="">All Areas</option>
+                    </select>
+                </div>
+                <div class="hl-search-field">
+                    <label>Room Type</label>
+                    <select id="type-filter" name="property_type">
+                        <option value="">Any Type</option>
+                        <option value="single_room">Single Room</option>
+                        <option value="bedsitter">Bedsitter</option>
+                        <option value="one_bedroom">1 Bedroom</option>
+                        <option value="studio">Studio</option>
+                        <option value="shared_room">Shared Room</option>
+                    </select>
+                </div>
+                <div class="hl-search-field">
+                    <label>Max Rent (KES)</label>
+                    <input type="number" id="max-rent" name="max_rent" placeholder="e.g. 8,000" min="0" step="500">
+                </div>
+                <button type="submit" class="hl-search-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Search
+                </button>
+            </form>
+
+            <div class="hl-stats">
+                <div class="hl-stat-item">
+                    <span class="hl-stat-num">250+</span>
+                    <span class="hl-stat-label">Listings</span>
+                </div>
+                <div class="hl-stat-item">
+                    <span class="hl-stat-num">50+</span>
+                    <span class="hl-stat-label">Verified Landlords</span>
+                </div>
+                <div class="hl-stat-item">
+                    <span class="hl-stat-num">10+</span>
+                    <span class="hl-stat-label">Areas</span>
+                </div>
+                <div class="hl-stat-item">
+                    <span class="hl-stat-num">500+</span>
+                    <span class="hl-stat-label">Students Helped</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================
+         TRUST STRIP  (SVG icons — no emoji)
+    ================================================ -->
+    <div class="hl-trust">
+        <div class="hl-trust-inner">
+            <div class="hl-trust-item">
+                <div class="hl-trust-svg-wrap">
+                    <!-- Shield checkmark -->
+                    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                </div>
+                <div class="hl-trust-copy">
+                    <strong>Verified Landlords</strong>
+                    <span>National ID &amp; property checked</span>
+                </div>
+            </div>
+            <div class="hl-trust-item">
+                <div class="hl-trust-svg-wrap">
+                    <!-- Graduation cap -->
+                    <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                </div>
+                <div class="hl-trust-copy">
+                    <strong>Near Pwani University</strong>
+                    <span>Walk to class in minutes</span>
+                </div>
+            </div>
+            <div class="hl-trust-item">
+                <div class="hl-trust-svg-wrap">
+                    <!-- Lock -->
+                    <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <div class="hl-trust-copy">
+                    <strong>Safe Neighbourhoods</strong>
+                    <span>All areas screened for safety</span>
+                </div>
+            </div>
+            <div class="hl-trust-item">
+                <div class="hl-trust-svg-wrap">
+                    <!-- Phone / M-Pesa -->
+                    <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="3"/></svg>
+                </div>
+                <div class="hl-trust-copy">
+                    <strong>M-Pesa Payments</strong>
+                    <span>Secure, instant, hassle-free</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================
+         FEATURED LISTINGS
+    ================================================ -->
+    <section class="hl-section" id="hl-featured-section">
+        <div class="hl-container">
+            <div class="hl-section-hdr">
+                <div>
+                    <div class="hl-section-tag">
+                        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        Featured
+                    </div>
+                    <h2 class="hl-section-title">Featured Listings</h2>
+                    <p class="hl-section-sub">Handpicked properties from our top verified landlords</p>
+                </div>
+                <a href="search.html?is_featured=true" class="hl-view-all">View all</a>
+            </div>
+            <div id="featured-properties" class="hl-grid">
+                <div class="prop-skeleton"><div class="skel-body"><div class="skel-line wide"></div><div class="skel-line med"></div><div class="skel-line short"></div></div></div>
+                <div class="prop-skeleton"><div class="skel-body"><div class="skel-line wide"></div><div class="skel-line med"></div><div class="skel-line short"></div></div></div>
+                <div class="prop-skeleton"><div class="skel-body"><div class="skel-line wide"></div><div class="skel-line med"></div><div class="skel-line short"></div></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================
+         NEAR CAMPUS
+    ================================================ -->
+    <section class="hl-section hl-section-alt" id="hl-near-section">
+        <div class="hl-container">
+            <div class="hl-section-hdr">
+                <div>
+                    <div class="hl-section-tag">
+                        <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3" fill="currentColor"/></svg>
+                        Near Campus
+                    </div>
+                    <h2 class="hl-section-title">Near Pwani University</h2>
+                    <p class="hl-section-sub">Rooms within walking distance — under 1km from the main gate</p>
+                </div>
+                <a href="search.html?max_distance=1" class="hl-view-all">View all</a>
+            </div>
+            <div id="near-campus-properties" class="hl-grid">
+                <div class="prop-skeleton"><div class="skel-body"><div class="skel-line wide"></div><div class="skel-line med"></div><div class="skel-line short"></div></div></div>
+                <div class="prop-skeleton"><div class="skel-body"><div class="skel-line wide"></div><div class="skel-line med"></div><div class="skel-line short"></div></div></div>
+                <div class="prop-skeleton"><div class="skel-body"><div class="skel-line wide"></div><div class="skel-line med"></div><div class="skel-line short"></div></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================
+         RECENTLY ADDED
+    ================================================ -->
+    <section class="hl-section" id="hl-recent-section">
+        <div class="hl-container">
+            <div class="hl-section-hdr">
+                <div>
+                    <div class="hl-section-tag">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        New
+                    </div>
+                    <h2 class="hl-section-title">Recently Added</h2>
+                    <p class="hl-section-sub">Fresh listings posted this week by landlords in Kilifi</p>
+                </div>
+                <a href="search.html?ordering=-created_at" class="hl-view-all">View all</a>
+            </div>
+            <div id="recent-properties" class="hl-grid">
+                <div class="prop-skeleton"><div class="skel-body"><div class="skel-line wide"></div><div class="skel-line med"></div><div class="skel-line short"></div></div></div>
+                <div class="prop-skeleton"><div class="skel-body"><div class="skel-line wide"></div><div class="skel-line med"></div><div class="skel-line short"></div></div></div>
+                <div class="prop-skeleton"><div class="skel-body"><div class="skel-line wide"></div><div class="skel-line med"></div><div class="skel-line short"></div></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================
+         FOR SALE
+    ================================================ -->
+    <section class="hl-section hl-section-alt" id="hl-sale-section">
+        <div class="hl-container">
+            <div class="hl-section-hdr">
+                <div>
+                    <div class="hl-section-tag" style="background:rgba(245,158,11,.12);color:#b45309;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        Property &amp; Land Sales
+                    </div>
+                    <h2 class="hl-section-title">For Sale in Kilifi</h2>
+                    <p class="hl-section-sub">Land plots, houses, and commercial property for sale in Kilifi County</p>
+                </div>
+                <a href="search.html?listing_type=sale" class="hl-view-all">View all for sale</a>
+            </div>
+            <div id="sale-properties" class="hl-grid">
+                <div class="prop-skeleton"><div class="skel-body"><div class="skel-line wide"></div><div class="skel-line med"></div><div class="skel-line short"></div></div></div>
+                <div class="prop-skeleton"><div class="skel-body"><div class="skel-line wide"></div><div class="skel-line med"></div><div class="skel-line short"></div></div></div>
+                <div class="prop-skeleton"><div class="skel-body"><div class="skel-line wide"></div><div class="skel-line med"></div><div class="skel-line short"></div></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================
+         HOW IT WORKS
+    ================================================ -->
+    <section class="hl-how" id="hl-how-section">
+        <div class="hl-container">
+            <div class="hl-how-header">
+                <div class="hl-how-tag">Simple Process</div>
+                <h2 class="hl-how-title">How HomLink Works</h2>
+                <p class="hl-how-sub">Finding your student room takes just three steps</p>
+            </div>
+            <div class="hl-steps">
+                <div class="hl-step">
+                    <div class="hl-step-num">1</div>
+                    <h3>Search &amp; Filter</h3>
+                    <p>Browse verified listings by area, price, and room type. Every listing has real photos and honest details from the landlord.</p>
+                </div>
+                <div class="hl-step">
+                    <div class="hl-step-num">2</div>
+                    <h3>Contact Landlord</h3>
+                    <p>Message the landlord directly on WhatsApp. Get quick responses and schedule a viewing at a time that suits you.</p>
+                </div>
+                <div class="hl-step">
+                    <div class="hl-step-num">3</div>
+                    <h3>Move In</h3>
+                    <p>Agree on terms, pay securely via M-Pesa, and move into your verified room. Your new home in Kilifi, sorted.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================
+         DUAL CTA
+    ================================================ -->
+    <section class="hl-cta-section" id="hl-cta-section">
+        <div class="hl-container">
+            <div class="hl-cta-header">
+                <h2>Get Started on HomLink</h2>
+                <p>Whether you're looking for a room or listing a property — we've got you covered</p>
+            </div>
+            <div class="hl-cta-grid">
+                <!-- Student -->
+                <div class="hl-cta-card student">
+                    <div class="hl-cta-icon-wrap">
+                        <svg viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    </div>
+                    <h3>I'm a Student</h3>
+                    <ul class="hl-cta-list">
+                        <li>Browse 250+ verified listings</li>
+                        <li>Filter by distance to campus</li>
+                        <li>Save favourites &amp; compare</li>
+                        <li>Contact landlords directly</li>
+                    </ul>
+                    <a href="search.html" class="hl-cta-btn hl-cta-btn-white">Browse Rooms</a>
+                </div>
+                <!-- Landlord -->
+                <div class="hl-cta-card landlord" id="landlord-cta">
+                    <div class="hl-cta-icon-wrap">
+                        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    </div>
+                    <h3>I'm a Landlord</h3>
+                    <ul class="hl-cta-list">
+                        <li>Reach thousands of Pwani students</li>
+                        <li>List with photos &amp; video tours</li>
+                        <li>Get verified for maximum trust</li>
+                        <li>Fill vacancies faster</li>
+                    </ul>
+                    <a href="register.html" class="hl-cta-btn hl-cta-btn-glass" id="landlord-cta-btn">Get Started Free</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="app-footer"></footer>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

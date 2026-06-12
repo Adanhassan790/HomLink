@@ -1,0 +1,1322 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/jpeg" href="images/logo.jfif">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - HomLink</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1D9E75;
+            --primary-dark: #1a8a65;
+            --primary-light: #e8f5f1;
+            --accent: #FF6B35;
+            --text-dark: #1a1a1a;
+            --text-muted: #666;
+            --border: #e0e0e0;
+            --bg: #f8f8f8;
+            --white: #fff;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --radius: 8px;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-lg: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--bg);
+            color: var(--text-dark);
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .navbar-brand span {
+            color: var(--accent);
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .user-menu-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text-muted);
+        }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-lg);
+        }
+
+        /* ===== SIDEBAR + CONTENT ===== */
+        .dashboard-wrapper {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: var(--spacing-xl);
+            margin-top: var(--spacing-lg);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: var(--white);
+                border-top: 1px solid var(--border);
+                height: auto;
+                display: flex;
+                gap: 0;
+                padding: var(--spacing-sm);
+                z-index: 999;
+            }
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            height: fit-content;
+            position: sticky;
+            top: 80px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: all 0.2s ease;
+            font-size: 16px;
+        }
+
+        .sidebar-item:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .sidebar-item.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-item {
+                flex: 1;
+                padding: var(--spacing-sm);
+                gap: var(--spacing-xs);
+                font-size: 12px;
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .content-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .content-header h2 {
+            font-size: 28px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .content-header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .content-body {
+            padding: var(--spacing-lg);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xl) var(--spacing-lg);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .empty-state-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-dark);
+        }
+
+        .empty-state-text {
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* ===== PROPERTIES GRID ===== */
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        @media (max-width: 768px) {
+            .properties-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .property-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .property-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .property-image-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: var(--bg);
+            overflow: hidden;
+        }
+
+        .property-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .property-card:hover .property-image {
+            transform: scale(1.05);
+        }
+
+        .property-badges {
+            position: absolute;
+            top: var(--spacing-md);
+            left: var(--spacing-md);
+            display: flex;
+            gap: var(--spacing-xs);
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-featured {
+            background: #ffd700;
+            color: #333;
+        }
+
+        .badge-verified {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .property-favorite-btn {
+            position: absolute;
+            bottom: var(--spacing-md);
+            right: var(--spacing-md);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 1px solid var(--border);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .property-favorite-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        .property-favorite-btn.favorited {
+            color: #ff0000;
+        }
+
+        .property-info {
+            padding: var(--spacing-md);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .property-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+            color: var(--text-dark);
+        }
+
+        .property-location {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .property-distance {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .property-meta {
+            display: flex;
+            gap: var(--spacing-md);
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .property-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .property-footer {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: auto;
+        }
+
+        .btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-xs);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .btn-small {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 12px;
+            flex: 1;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* ===== SAVED SEARCHES ===== */
+        .saved-search-item {
+            background: var(--white);
+            border: 1px solid var(--border);
+            padding: var(--spacing-md);
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .saved-search-item:hover {
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+
+        .search-filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .filter-tag {
+            display: inline-block;
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .search-count {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .search-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* ===== INQUIRIES ===== */
+        .inquiry-item {
+            background: var(--white);
+            border: 1px solid var(--border);
+            padding: var(--spacing-md);
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .inquiry-header {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .inquiry-image {
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius);
+            object-fit: cover;
+            background: var(--bg);
+        }
+
+        .inquiry-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .inquiry-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .inquiry-date {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .inquiry-footer {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* ===== PROFILE SETTINGS ===== */
+        .profile-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .profile-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+            max-width: 500px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(29, 158, 117, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group-inline {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        @media (max-width: 768px) {
+            .form-group-inline {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .button-group {
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        /* ===== STATS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* ===== UTILITIES ===== */
+        .mobile-bottom-padding {
+            margin-bottom: 100px;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-bottom-padding {
+                margin-bottom: var(--spacing-lg);
+            }
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-muted {
+            color: var(--text-muted);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* ===== MODALS ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        /* ===== ALERTS ===== */
+        .alert {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        .alert-info {
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 1px solid #b2dfdb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: var(--spacing-xl);
+        }
+
+        .spinner {
+            border: 3px solid var(--bg);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 0.6s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== NAVBAR ===== -->
+    <div class="navbar">
+        <a href="search.html" class="navbar-brand">Hom<span>Link</span></a>
+        <div class="navbar-user">
+            <button class="user-menu-btn" onclick="toggleUserMenu()">👤</button>
+        </div>
+    </div>
+
+    <!-- ===== MAIN CONTAINER ===== -->
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="stat-favorites">0</div>
+                <div class="stat-label">Saved Properties</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="stat-searches">0</div>
+                <div class="stat-label">Saved Searches</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="stat-inquiries">0</div>
+                <div class="stat-label">Inquiries Sent</div>
+            </div>
+        </div>
+
+        <div class="dashboard-wrapper">
+            <!-- ===== SIDEBAR ===== -->
+            <div class="sidebar">
+                <button class="sidebar-item active" onclick="switchSection('saved-properties')">
+                    ❤️
+                    <span>My Saved Properties</span>
+                </button>
+                <button class="sidebar-item" onclick="switchSection('saved-searches')">
+                    🔍
+                    <span>My Saved Searches</span>
+                </button>
+                <button class="sidebar-item" onclick="switchSection('inquiries')">
+                    💬
+                    <span>My Inquiries</span>
+                </button>
+                <button class="sidebar-item" onclick="switchSection('settings')">
+                    ⚙️
+                    <span>Account Settings</span>
+                </button>
+            </div>
+
+            <!-- ===== MAIN CONTENT ===== -->
+            <div class="main-content">
+                <!-- SECTION: SAVED PROPERTIES -->
+                <div id="saved-properties" class="section active">
+                    <div class="content-header">
+                        <h2>❤️ My Saved Properties</h2>
+                        <p>Properties you've marked as favorites</p>
+                    </div>
+                    <div class="content-body">
+                        <div id="saved-properties-container">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                <p style="margin-top: var(--spacing-md);">Loading your saved properties...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION: SAVED SEARCHES -->
+                <div id="saved-searches" class="section">
+                    <div class="content-header">
+                        <h2>🔍 My Saved Searches</h2>
+                        <p>Your saved search filters and preferences</p>
+                    </div>
+                    <div class="content-body">
+                        <div id="saved-searches-container">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                <p style="margin-top: var(--spacing-md);">Loading your saved searches...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION: INQUIRIES -->
+                <div id="inquiries" class="section">
+                    <div class="content-header">
+                        <h2>💬 My Inquiries</h2>
+                        <p>Properties you've contacted landlords about</p>
+                    </div>
+                    <div class="content-body">
+                        <div id="inquiries-container">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                <p style="margin-top: var(--spacing-md);">Loading your inquiries...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION: ACCOUNT SETTINGS -->
+                <div id="settings" class="section">
+                    <div class="content-header">
+                        <h2>⚙️ Account Settings</h2>
+                        <p>Manage your profile and account preferences</p>
+                    </div>
+                    <div class="content-body">
+                        <!-- Profile Info -->
+                        <div class="profile-section">
+                            <h3>Profile Information</h3>
+                            <div class="form-group-inline">
+                                <div class="form-group">
+                                    <label>First Name</label>
+                                    <input type="text" id="settings-first-name" placeholder="Enter your first name">
+                                </div>
+                                <div class="form-group">
+                                    <label>Last Name</label>
+                                    <input type="text" id="settings-last-name" placeholder="Enter your last name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" id="settings-email" placeholder="your@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" id="settings-phone" placeholder="+254 7XX XXX XXX">
+                            </div>
+                            <button class="btn btn-primary" onclick="updateProfile()">Save Changes</button>
+                        </div>
+
+                        <!-- Change Password -->
+                        <div class="profile-section">
+                            <h3>Change Password</h3>
+                            <div class="form-group">
+                                <label>Current Password</label>
+                                <input type="password" id="settings-current-password" placeholder="Enter your current password">
+                            </div>
+                            <div class="form-group">
+                                <label>New Password</label>
+                                <input type="password" id="settings-new-password" placeholder="Enter your new password">
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm New Password</label>
+                                <input type="password" id="settings-confirm-password" placeholder="Confirm your new password">
+                            </div>
+                            <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+                        </div>
+
+                        <!-- Danger Zone -->
+                        <div class="profile-section">
+                            <h3 style="color: var(--error);">Danger Zone</h3>
+                            <p style="color: var(--text-muted); margin-bottom: var(--spacing-lg);">Permanently delete your account and all associated data. This action cannot be undone.</p>
+                            <button class="btn btn-danger" onclick="confirmDeleteAccount()">Delete Account</button>
+                        </div>
+
+                        <!-- Logout -->
+                        <div class="button-group" style="margin-top: var(--spacing-xl);">
+                            <button class="btn btn-secondary" onclick="logoutUser()">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mobile-bottom-padding"></div>
+    </div>
+
+    <!-- ===== MODALS ===== -->
+    <div id="delete-account-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                Delete Account
+                <button class="modal-close" onclick="closeModal('delete-account-modal')">✕</button>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: var(--spacing-lg);">
+                Are you sure you want to delete your account? This action is permanent and cannot be reversed. All your saved properties, searches, and inquiries will be deleted.
+            </p>
+            <div style="display: flex; gap: var(--spacing-md);">
+                <button class="btn btn-secondary btn-block" onclick="closeModal('delete-account-modal')">Cancel</button>
+                <button class="btn btn-danger btn-block" onclick="deleteAccount()">Delete My Account</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== API CONFIGURATION =====
+        const API_BASE_URL = 'http://localhost:8000/api'; // Update to your backend URL
+        const ACCESS_TOKEN_KEY = 'access_token';
+        const REFRESH_TOKEN_KEY = 'refresh_token';
+        const USER_KEY = 'user';
+
+        // ===== AUTH UTILITIES =====
+        function getToken() {
+            return localStorage.getItem(ACCESS_TOKEN_KEY);
+        }
+
+        function getCurrentUser() {
+            const user = localStorage.getItem(USER_KEY);
+            return user ? JSON.parse(user) : null;
+        }
+
+        function setCurrentUser(user) {
+            localStorage.setItem(USER_KEY, JSON.stringify(user));
+        }
+
+        function logoutUser() {
+            localStorage.removeItem(ACCESS_TOKEN_KEY);
+            localStorage.removeItem(REFRESH_TOKEN_KEY);
+            localStorage.removeItem(USER_KEY);
+            window.location.href = 'login.html';
+        }
+
+        function requireAuth() {
+            if (!getToken()) {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // ===== API FUNCTIONS =====
+        async function apiCall(endpoint, options = {}) {
+            const token = getToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers,
+            };
+
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                ...options,
+                headers,
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    logoutUser();
+                }
+                throw new Error(`API Error: ${response.statusText}`);
+            }
+
+            return response.json();
+        }
+
+        // ===== SAVED PROPERTIES ENDPOINT: GET /api/favorites/ =====
+        async function loadSavedProperties() {
+            try {
+                const container = document.getElementById('saved-properties-container');
+                const data = await apiCall('/favorites/');
+                const properties = Array.isArray(data) ? data : data.results || [];
+
+                document.getElementById('stat-favorites').textContent = properties.length;
+
+                if (properties.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">❤️</div>
+                            <div class="empty-state-title">You haven't saved any rooms yet</div>
+                            <div class="empty-state-text">Browse listings to save rooms you like</div>
+                            <a href="search.html" class="btn btn-primary">Browse Properties</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const grid = document.createElement('div');
+                grid.className = 'properties-grid';
+
+                properties.forEach(fav => {
+                    const prop = fav.property || fav;
+                    const image = prop.images?.[0]?.image || 'https://via.placeholder.com/300x200';
+                    const distanceToCampus = prop.distance_to_campus ? `${prop.distance_to_campus} km to Pwani` : 'Distance unknown';
+
+                    const card = document.createElement('div');
+                    card.className = 'property-card';
+                    card.innerHTML = `
+                        <div class="property-image-container">
+                            <img src="${image}" alt="${prop.title}" class="property-image" onerror="this.src='https://via.placeholder.com/300x200'">
+                            <div class="property-badges">
+                                ${prop.is_verified ? '<span class="badge badge-verified">✓ Verified</span>' : ''}
+                            </div>
+                            <button class="property-favorite-btn favorited" onclick="removeFavorite(${prop.id}, event)">❤️</button>
+                        </div>
+                        <div class="property-info">
+                            <h3 class="property-title">${prop.title || 'Property'}</h3>
+                            <p class="property-location">📍 ${prop.town_name || prop.county_name || 'Location unknown'}</p>
+                            <p class="property-distance">📏 ${distanceToCampus}</p>
+                            <div class="property-meta">
+                                <span>${prop.property_type || 'Type unknown'}</span>
+                            </div>
+                            <div class="property-price">KES ${(prop.rent_amount || 0).toLocaleString()}</div>
+                            <div class="property-footer">
+                                <a href="property.html?id=${prop.id}" class="btn btn-primary btn-small">View Details</a>
+                                <button class="btn btn-secondary btn-small" onclick="contactLandlord(${prop.id})">Contact</button>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                container.innerHTML = '';
+                container.appendChild(grid);
+            } catch (error) {
+                console.error('Error loading saved properties:', error);
+                document.getElementById('saved-properties-container').innerHTML = `
+                    <div class="alert alert-error">
+                        <span>Failed to load saved properties</span>
+                    </div>
+                `;
+            }
+        }
+
+        // ===== SAVED SEARCHES ENDPOINT: GET /api/saved-searches/ =====
+        async function loadSavedSearches() {
+            try {
+                const container = document.getElementById('saved-searches-container');
+                const data = await apiCall('/saved-searches/');
+                const searches = Array.isArray(data) ? data : data.results || [];
+
+                document.getElementById('stat-searches').textContent = searches.length;
+
+                if (searches.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔍</div>
+                            <div class="empty-state-title">No saved searches yet</div>
+                            <div class="empty-state-text">Save your search filters while browsing to find properties faster</div>
+                            <a href="search.html" class="btn btn-primary">Browse & Save Searches</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                searches.forEach(search => {
+                    const filters = search.filters || {};
+                    const filterText = [
+                        filters.property_type,
+                        filters.town_name,
+                        filters.max_price ? `Under KES ${filters.max_price.toLocaleString()}` : null,
+                    ].filter(Boolean).join(' · ');
+
+                    html += `
+                        <div class="saved-search-item">
+                            <div>
+                                <div class="search-filter-tags">
+                                    ${filterText ? `<div class="filter-tag">${filterText}</div>` : ''}
+                                </div>
+                                <div class="search-count">${search.matching_count || 0} matching properties</div>
+                            </div>
+                            <div class="search-actions">
+                                <a href="search.html?filters=${encodeURIComponent(JSON.stringify(filters))}" class="btn btn-primary btn-small">View Matches</a>
+                                <button class="btn btn-danger btn-small" onclick="deleteSavedSearch(${search.id})">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading saved searches:', error);
+                document.getElementById('saved-searches-container').innerHTML = `
+                    <div class="alert alert-error">
+                        <span>Failed to load saved searches</span>
+                    </div>
+                `;
+            }
+        }
+
+        // ===== INQUIRIES ENDPOINT: GET /api/inquiries/ =====
+        async function loadInquiries() {
+            try {
+                const container = document.getElementById('inquiries-container');
+                const data = await apiCall('/inquiries/');
+                const inquiries = Array.isArray(data) ? data : data.results || [];
+
+                document.getElementById('stat-inquiries').textContent = inquiries.length;
+
+                if (inquiries.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💬</div>
+                            <div class="empty-state-title">No inquiries yet</div>
+                            <div class="empty-state-text">Contact landlords about properties you're interested in</div>
+                            <a href="search.html" class="btn btn-primary">Browse Properties</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                inquiries.forEach(inquiry => {
+                    const prop = inquiry.property || {};
+                    const image = prop.images?.[0]?.image || 'https://via.placeholder.com/100x100';
+                    const date = new Date(inquiry.created_at).toLocaleDateString('en-KE');
+                    const landlordPhone = prop.landlord?.phone_number || inquiry.landlord?.phone_number;
+
+                    html += `
+                        <div class="inquiry-item">
+                            <div class="inquiry-header">
+                                <img src="${image}" alt="${prop.title}" class="inquiry-image" onerror="this.src='https://via.placeholder.com/100x100'">
+                                <div class="inquiry-details">
+                                    <div class="inquiry-title">${prop.title || 'Property'}</div>
+                                    <div class="inquiry-date">Contacted: ${date}</div>
+                                    <div style="color: var(--text-muted); font-size: 13px;">KES ${(prop.rent_amount || 0).toLocaleString()}/month</div>
+                                </div>
+                            </div>
+                            <div class="inquiry-footer">
+                                ${landlordPhone ? `
+                                    <a href="https://wa.me/${landlordPhone.replace(/\D/g, '')}" target="_blank" class="btn btn-primary btn-small">
+                                        Message on WhatsApp
+                                    </a>
+                                ` : '<div class="btn btn-secondary btn-small" style="opacity: 0.5;">Contact unavailable</div>'}
+                                <a href="property.html?id=${prop.id}" class="btn btn-secondary btn-small">View Property</a>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading inquiries:', error);
+                document.getElementById('inquiries-container').innerHTML = `
+                    <div class="alert alert-error">
+                        <span>Failed to load inquiries</span>
+                    </div>
+                `;
+            }
+        }
+
+        // ===== UPDATE PROFILE ENDPOINT: PUT /api/users/profile/ or PATCH /api/users/{id}/ =====
+        async function updateProfile() {
+            try {
+                const user = getCurrentUser();
+                const data = {
+                    first_name: document.getElementById('settings-first-name').value,
+                    last_name: document.getElementById('settings-last-name').value,
+                    email: document.getElementById('settings-email').value,
+                    phone_number: document.getElementById('settings-phone').value,
+                };
+
+                const updated = await apiCall(`/users/${user.id}/`, {
+                    method: 'PATCH',
+                    body: JSON.stringify(data),
+                });
+
+                setCurrentUser(updated);
+                showAlert('success', 'Profile updated successfully');
+                loadSettings();
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showAlert('error', 'Failed to update profile');
+            }
+        }
+
+        // ===== CHANGE PASSWORD ENDPOINT: POST /api/users/change-password/ =====
+        async function changePassword() {
+            const current = document.getElementById('settings-current-password').value;
+            const newPass = document.getElementById('settings-new-password').value;
+            const confirm = document.getElementById('settings-confirm-password').value;
+
+            if (!current || !newPass || !confirm) {
+                showAlert('error', 'Please fill in all password fields');
+                return;
+            }
+
+            if (newPass !== confirm) {
+                showAlert('error', 'New passwords do not match');
+                return;
+            }
+
+            try {
+                await apiCall('/users/change-password/', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        old_password: current,
+                        new_password: newPass,
+                    }),
+                });
+
+                document.getElementById('settings-current-password').value = '';
+                document.getElementById('settings-new-password').value = '';
+                document.getElementById('settings-confirm-password').value = '';
+                showAlert('success', 'Password changed successfully');
+            } catch (error) {
+                console.error('Error changing password:', error);
+                showAlert('error', 'Failed to change password. Check your current password.');
+            }
+        }
+
+        // ===== DELETE ACCOUNT ENDPOINT: DELETE /api/users/{id}/ =====
+        async function deleteAccount() {
+            try {
+                const user = getCurrentUser();
+                await apiCall(`/users/${user.id}/`, { method: 'DELETE' });
+                closeModal('delete-account-modal');
+                logoutUser();
+            } catch (error) {
+                console.error('Error deleting account:', error);
+                showAlert('error', 'Failed to delete account');
+            }
+        }
+
+        // ===== REMOVE FAVORITE ENDPOINT: DELETE /api/favorites/{propertyId}/ =====
+        async function removeFavorite(propertyId, event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            try {
+                await apiCall(`/favorites/${propertyId}/`, { method: 'DELETE' });
+                showAlert('success', 'Removed from favorites');
+                await loadSavedProperties();
+            } catch (error) {
+                console.error('Error removing favorite:', error);
+                showAlert('error', 'Failed to remove from favorites');
+            }
+        }
+
+        // ===== DELETE SAVED SEARCH ENDPOINT: DELETE /api/saved-searches/{id}/ =====
+        async function deleteSavedSearch(searchId) {
+            if (!confirm('Delete this saved search?')) return;
+
+            try {
+                await apiCall(`/saved-searches/${searchId}/`, { method: 'DELETE' });
+                showAlert('success', 'Saved search deleted');
+                await loadSavedSearches();
+            } catch (error) {
+                console.error('Error deleting saved search:', error);
+                showAlert('error', 'Failed to delete saved search');
+            }
+        }
+
+        // ===== CONTACT LANDLORD ENDPOINT: POST /api/inquiries/ =====
+        async function contactLandlord(propertyId) {
+            window.location.href = `property.html?id=${propertyId}`;
+        }
+
+        // ===== LOAD SETTINGS =====
+        function loadSettings() {
+            const user = getCurrentUser();
+            if (!user) return;
+
+            document.getElementById('settings-first-name').value = user.first_name || '';
+            document.getElementById('settings-last-name').value = user.last_name || '';
+            document.getElementById('settings-email').value = user.email || '';
+            document.getElementById('settings-phone').value = user.phone_number || '';
+        }
+
+        // ===== UI UTILITIES =====
+        function switchSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            event.target.closest('.sidebar-item').classList.add('active');
+
+            // Load section data
+            if (sectionId === 'saved-properties') loadSavedProperties();
+            else if (sectionId === 'saved-searches') loadSavedSearches();
+            else if (sectionId === 'inquiries') loadInquiries();
+            else if (sectionId === 'settings') loadSettings();
+        }
+
+        function showAlert(type, message) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `<span>${message}</span>`;
+            document.body.insertBefore(alert, document.body.firstChild);
+            setTimeout(() => alert.remove(), 3000);
+        }
+
+        function confirmDeleteAccount() {
+            document.getElementById('delete-account-modal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function toggleUserMenu() {
+            logoutUser();
+        }
+
+        // ===== INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', () => {
+            requireAuth();
+            loadSavedProperties();
+            loadSettings();
+        });
+    </script>
+</body>
+</html>

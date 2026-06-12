@@ -1,0 +1,374 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/jpeg" href="images/logo.jfif">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - HomLink</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <style>
+        .register-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8f5f0 100%);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: var(--spacing-xl) var(--spacing-md);
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 560px;
+            background: var(--color-white);
+            border-radius: var(--radius-xl);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            padding: var(--spacing-2xl);
+        }
+
+        .register-brand {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .register-brand .brand-name {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--color-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .register-brand .brand-tagline {
+            color: var(--color-text-muted);
+            font-size: var(--font-size-sm);
+            margin-top: 4px;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .role-option { position: relative; }
+
+        .role-option input[type="radio"] { display: none; }
+
+        .role-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--spacing-lg) var(--spacing-md);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            text-align: center;
+            gap: var(--spacing-sm);
+        }
+
+        .role-option input[type="radio"]:checked + .role-label {
+            border-color: var(--color-accent);
+            background: rgba(27, 127, 79, 0.06);
+            box-shadow: 0 0 0 3px rgba(27, 127, 79, 0.12);
+        }
+
+        .role-label:hover {
+            border-color: var(--color-accent);
+            background: rgba(27, 127, 79, 0.03);
+        }
+
+        .role-icon { font-size: 2.25rem; }
+        .role-name { font-weight: 700; color: var(--color-text); font-size: var(--font-size-md); }
+        .role-desc { font-size: var(--font-size-xs); color: var(--color-text-muted); line-height: 1.4; }
+
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+        }
+
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--color-border);
+        }
+
+        .section-divider span {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        .landlord-fields {
+            display: none;
+            background: rgba(27, 127, 79, 0.04);
+            border: 1px solid rgba(27, 127, 79, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .landlord-fields.show { display: block; }
+
+        .landlord-fields-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .landlord-fields-header .icon { font-size: 1.25rem; }
+
+        .landlord-fields-header h4 {
+            font-size: var(--font-size-md);
+            color: var(--color-accent);
+            margin: 0;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        .form-row .form-group { margin-bottom: 0; }
+
+        .form-error-alert {
+            background: #FEE2E2;
+            border: 1px solid #FCA5A5;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            color: #991B1B;
+            font-size: var(--font-size-sm);
+            display: none;
+        }
+
+        .form-error-alert.show { display: block; }
+
+        .terms-row {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .terms-row input[type="checkbox"] {
+            margin-top: 3px;
+            accent-color: var(--color-accent);
+            flex-shrink: 0;
+        }
+
+        .terms-row label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text);
+            font-weight: 400;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .terms-row a { color: var(--color-accent); font-weight: 600; }
+
+        .register-footer {
+            text-align: center;
+            margin-top: var(--spacing-lg);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-muted);
+        }
+
+        .register-footer a {
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        .pending-notice {
+            background: #FFFBEB;
+            border: 1px solid #FCD34D;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            font-size: var(--font-size-sm);
+            color: #92400E;
+            margin-top: var(--spacing-md);
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: flex-start;
+        }
+
+        .pending-notice .notice-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+        @media (max-width: 640px) {
+            .register-page { padding: var(--spacing-md); }
+            .register-container { padding: var(--spacing-xl) var(--spacing-lg); }
+            .role-selector { grid-template-columns: 1fr 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar"></div>
+
+    <main class="register-page">
+        <div class="register-container">
+            <div class="register-brand">
+                <div class="brand-name">HomLink</div>
+                <div class="brand-tagline">Student Accommodation in Kilifi</div>
+            </div>
+
+            <div id="error-alert" class="form-error-alert"></div>
+
+            <form id="register-form">
+                <!-- Role Selection -->
+                <div style="margin-bottom: var(--spacing-lg);">
+                    <label style="display: block; font-weight: 700; margin-bottom: var(--spacing-md); color: var(--color-text);">I am a...</label>
+                    <div class="role-selector">
+                        <div class="role-option">
+                            <input type="radio" id="role-tenant" name="role" value="tenant" required>
+                            <label for="role-tenant" class="role-label">
+                                <div class="role-icon">🎓</div>
+                                <div class="role-name">Student / Tenant</div>
+                                <div class="role-desc">Looking for accommodation near Pwani University</div>
+                            </label>
+                        </div>
+                        <div class="role-option">
+                            <input type="radio" id="role-landlord" name="role" value="landlord">
+                            <label for="role-landlord" class="role-label">
+                                <div class="role-icon">🏠</div>
+                                <div class="role-name">Landlord</div>
+                                <div class="role-desc">List properties for students</div>
+                            </label>
+                        </div>
+                    </div>
+                    <span class="form-error" id="role-error"></span>
+                </div>
+
+                <!-- Basic Information -->
+                <div class="section-divider"><span>Your Information</span></div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name">First Name</label>
+                        <input type="text" id="first_name" name="first_name" placeholder="John" required>
+                        <span class="form-error" id="first_name-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" placeholder="Doe" required>
+                        <span class="form-error" id="last_name-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                    <span class="form-error" id="email-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone_number">Phone Number</label>
+                    <input type="tel" id="phone_number" name="phone_number" placeholder="0712 345 678">
+                    <span class="form-error" id="phone_number-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="john_doe" required>
+                    <span class="form-hint">3–30 characters · letters, numbers, underscore</span>
+                    <span class="form-error" id="username-error"></span>
+                </div>
+
+                <!-- Landlord-Only Fields -->
+                <div id="landlord-fields" class="landlord-fields">
+                    <div class="landlord-fields-header">
+                        <span class="icon">🏢</span>
+                        <h4>Landlord Information</h4>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="national_id">National ID Number</label>
+                            <input type="text" id="national_id" name="national_id" placeholder="12345678">
+                            <span class="form-error" id="national_id-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="whatsapp_number">WhatsApp Number</label>
+                            <input type="tel" id="whatsapp_number" name="whatsapp_number" placeholder="0712 345 678">
+                            <span class="form-error" id="whatsapp_number-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="building_name">Plot / Building Name</label>
+                        <input type="text" id="building_name" name="building_name" placeholder="e.g., Mwamba Apartments">
+                        <span class="form-error" id="building_name-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="landlord_area">Area</label>
+                        <select id="landlord_area" name="landlord_area">
+                            <option value="">Select Area</option>
+                            <option value="Bofa">Bofa</option>
+                            <option value="Kibaoni">Kibaoni</option>
+                            <option value="Tezo">Tezo</option>
+                            <option value="Mnarani">Mnarani</option>
+                            <option value="Shimo la Tewa">Shimo la Tewa</option>
+                            <option value="Pwani University Area">Pwani University Area</option>
+                            <option value="Kilifi Town">Kilifi Town</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <span class="form-error" id="landlord_area-error"></span>
+                    </div>
+
+                    <div class="pending-notice">
+                        <span class="notice-icon">⏳</span>
+                        <span>After registration, your account will be reviewed by the HomLink team before you can post listings. We'll contact you within 24–48 hours.</span>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="section-divider"><span>Password</span></div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Min. 8 characters" required>
+                        <span class="form-error" id="password-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="password_confirm">Confirm Password</label>
+                        <input type="password" id="password_confirm" name="password_confirm" placeholder="Repeat password" required>
+                        <span class="form-error" id="password_confirm-error"></span>
+                    </div>
+                </div>
+
+                <!-- Terms -->
+                <div class="terms-row">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">
+                        I agree to HomLink's
+                        <a href="#" target="_blank">Terms of Service</a> and
+                        <a href="#" target="_blank">Privacy Policy</a>
+                    </label>
+                </div>
+                <span class="form-error" id="terms-error"></span>
+
+                <button type="submit" class="btn btn-primary btn-block" id="submit-btn">Create Account</button>
+            </form>
+
+            <div class="register-footer">
+                <p>Already have an account? <a href="login.html">Sign in</a></p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="js/register.js"></script>
+</body>
+</html>
