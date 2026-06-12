@@ -143,7 +143,7 @@ function renderTenantSection(profile) {
                 <input type="number" id="pf-budget-max" value="${profile.budget_max || ''}" placeholder="e.g. 8000" min="0">
             </div>
             <div class="pf-field pf-grid-full">
-                <label>Max Distance from Pwani University (km)</label>
+                <label>Max Distance from Kilifi Town (km)</label>
                 <input type="number" id="pf-max-dist" value="${profile.max_distance_km || 5}" placeholder="5" min="0" max="20" step="0.5">
             </div>
         </div>

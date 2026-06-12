@@ -230,14 +230,45 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; align-items: center; justify-content: center; }
         .modal.active { display: flex; }
 
+        /* ====== MOBILE BOTTOM NAV ====== */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: #0F172A;
+            padding: 8px 4px;
+            z-index: 100;
+            overflow-x: auto;
+            white-space: nowrap;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .mobile-bottom-nav button {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.6);
+            font-size: 10px;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .mobile-bottom-nav button.active { color: #1B7F4F; background: rgba(27,127,79,0.15); }
+        .mobile-bottom-nav button span.icon { font-size: 1.2rem; }
+
         @media (max-width: 900px) {
             .dash-layout { grid-template-columns: 1fr; }
             .dash-sidebar { display: none; }
+            .dash-main { padding-bottom: 80px; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .analytics-grid { grid-template-columns: 1fr; }
             .queue-card-inner { grid-template-columns: 1fr; }
             .queue-img { width: 100%; height: 160px; }
-            .queue-actions { border-left: none; border-top: 1px solid var(--color-border); flex-direction: row; }
+            .queue-actions { border-left: none; border-top: 1px solid var(--color-border); flex-direction: row; flex-wrap: wrap; }
+            .mobile-bottom-nav { display: block; }
         }
     </style>
 </head>
@@ -386,7 +417,7 @@
 
                 <div style="display:flex;gap:var(--spacing-md);margin-bottom:var(--spacing-lg);flex-wrap:wrap;">
                     <button class="btn btn-sm btn-secondary user-filter active" onclick="filterUsers('all', this)">All</button>
-                    <button class="btn btn-sm btn-secondary user-filter" onclick="filterUsers('tenant', this)">Students</button>
+                    <button class="btn btn-sm btn-secondary user-filter" onclick="filterUsers('tenant', this)">Tenants</button>
                     <button class="btn btn-sm btn-secondary user-filter" onclick="filterUsers('landlord', this)">Landlords</button>
                 </div>
 
@@ -551,6 +582,28 @@
             </div>
         </div>
     </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+        <button class="active" onclick="switchSection('overview')" id="mnav-overview">
+            <span class="icon">📊</span>Overview
+        </button>
+        <button onclick="switchSection('landlord-queue')" id="mnav-landlord-queue">
+            <span class="icon">👤</span>Landlords
+        </button>
+        <button onclick="switchSection('property-queue')" id="mnav-property-queue">
+            <span class="icon">🏠</span>Properties
+        </button>
+        <button onclick="switchSection('users')" id="mnav-users">
+            <span class="icon">👥</span>Users
+        </button>
+        <button onclick="switchSection('revenue')" id="mnav-revenue">
+            <span class="icon">💰</span>Revenue
+        </button>
+        <button onclick="switchSection('analytics')" id="mnav-analytics">
+            <span class="icon">📈</span>Analytics
+        </button>
+    </nav>
 
     <script type="module" src="js/dashboard-admin.js"></script>
 </body>

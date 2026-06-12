@@ -149,7 +149,7 @@ function renderRecentListings() {
             <div class="empty-state">
                 <div class="empty-icon">🏠</div>
                 <h3>No listings yet</h3>
-                <p>Create your first listing to start getting inquiries from students.</p>
+                <p>Create your first listing to start getting inquiries from tenants.</p>
                 ${actionBtn}
             </div>`;
         return;
@@ -189,7 +189,7 @@ async function loadInquiries() {
 }
 
 function buildInquiryCard(inq) {
-    const name    = inq.tenant_name || inq.tenant?.first_name || 'Student';
+    const name    = inq.tenant_name || inq.tenant?.first_name || 'Tenant';
     const prop    = inq.property_title || inq.property?.title || 'Property';
     const phone   = inq.tenant?.phone_number || inq.tenant_phone || '';
     const waPhone = phone.replace(/\D/g, '');
@@ -218,7 +218,7 @@ function renderInquiries(filter = 'all') {
     if (filter === 'responded') filtered = allInquiries.filter(i => i.status === 'responded');
 
     if (!filtered.length) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-icon">💬</div><h3>No inquiries</h3><p>Student inquiries from your listings will appear here.</p></div>`;
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">💬</div><h3>No inquiries</h3><p>Tenant inquiries from your listings will appear here.</p></div>`;
         return;
     }
     container.innerHTML = filtered.map(buildInquiryCard).join('');

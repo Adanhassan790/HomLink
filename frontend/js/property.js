@@ -434,28 +434,28 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
 }
 
 /**
- * Initialize Leaflet.js map with Pwani University landmark
+ * Initialize Leaflet.js map with Kilifi Town landmark
  */
 function initializeMap() {
-    // Pwani University coordinates
-    const pwaniLat = -3.1899;
-    const pwaniLng = 39.7453;
-    
+    // Kilifi Town coordinates
+    const kilifiLat = -3.6305;
+    const kilifiLng = 39.8499;
+
     // Property coordinates
     const propLat = parseFloat(currentProperty.latitude);
     const propLng = parseFloat(currentProperty.longitude);
-    
-    // Create map centered between Pwani and property
-    const map = L.map('property-map').setView([pwaniLat, pwaniLng], 14);
-    
+
+    // Create map centered around Kilifi Town
+    const map = L.map('property-map').setView([kilifiLat, kilifiLng], 14);
+
     // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
         maxZoom: 19,
     }).addTo(map);
-    
-    // Add Pwani University marker (blue)
-    const pwaniMarker = L.circleMarker([pwaniLat, pwaniLng], {
+
+    // Add Kilifi Town marker (blue)
+    const kilifiMarker = L.circleMarker([kilifiLat, kilifiLng], {
         radius: 10,
         fillColor: '#3b82f6',
         color: '#1e40af',
@@ -463,9 +463,9 @@ function initializeMap() {
         opacity: 1,
         fillOpacity: 0.8
     }).addTo(map);
-    
-    pwaniMarker.bindPopup('<strong>Pwani University</strong><br/>Reference Point');
-    
+
+    kilifiMarker.bindPopup('<strong>Kilifi Town</strong><br/>Reference Point');
+
     // Add property location marker (red)
     const propMarker = L.circleMarker([propLat, propLng], {
         radius: 8,
@@ -475,11 +475,11 @@ function initializeMap() {
         opacity: 1,
         fillOpacity: 0.8
     }).addTo(map);
-    
+
     propMarker.bindPopup(`<strong>${currentProperty.title}</strong><br/>Rent: KES ${formatCurrency(currentProperty.rent_amount)}`);
-    
-    // Draw 1km circle around Pwani
-    L.circle([pwaniLat, pwaniLng], {
+
+    // Draw 1km circle around Kilifi Town
+    L.circle([kilifiLat, kilifiLng], {
         radius: 1000, // 1km in meters
         color: '#3b82f6',
         weight: 1,
@@ -488,31 +488,29 @@ function initializeMap() {
         fillOpacity: 0.1,
         dashArray: '5, 5'
     }).addTo(map);
-    
+
     // Calculate distance
-    const distance = haversineDistance(pwaniLat, pwaniLng, propLat, propLng);
-    
+    const distance = haversineDistance(kilifiLat, kilifiLng, propLat, propLng);
+
     // Rough estimates
     const walkingMinutes = Math.round((distance / 1.4) * 60);
     const bikeMinutes = Math.round((distance / 15) * 60);
-    
+
     // Display distance info
     const distanceInfo = document.getElementById('distance-info');
     let distanceText = '';
-    
+
     if (distance < 1) {
-        distanceText = `🎓 <strong>Campus Zone!</strong> Only ${Math.round(distance * 1000)}m from Pwani University`;
-    } else if (distance < 2) {
-        distanceText = `📍 <strong>${distance.toFixed(2)}km away</strong> - ${walkingMinutes}min walk / ${bikeMinutes}min bike to Pwani`;
+        distanceText = `📍 <strong>Town Zone!</strong> Only ${Math.round(distance * 1000)}m from Kilifi Town`;
     } else {
-        distanceText = `📍 <strong>${distance.toFixed(2)}km away</strong> - ${walkingMinutes}min walk / ${bikeMinutes}min bike to Pwani`;
+        distanceText = `📍 <strong>${distance.toFixed(2)}km away</strong> - ${walkingMinutes}min walk / ${bikeMinutes}min bike to Kilifi Town`;
     }
-    
+
     distanceInfo.querySelector('p').innerHTML = distanceText;
     distanceInfo.style.display = 'block';
-    
+
     // Fit map bounds to show both markers
-    const group = new L.featureGroup([pwaniMarker, propMarker]);
+    const group = new L.featureGroup([kilifiMarker, propMarker]);
     map.fitBounds(group.getBounds().pad(0.1));
 }
 

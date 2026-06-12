@@ -229,7 +229,7 @@ function landlordHomeHTML(name, stats) {
             ${stats.total === 0 ? `
             <div class="ll-empty" style="grid-column:1/-1">
                 <h3>No listings yet</h3>
-                <p>Create your first listing and reach thousands of Pwani students.</p>
+                <p>Create your first listing and reach thousands of tenants in Kilifi.</p>
                 <a href="create-listing.html" class="ll-hero-btn ll-hero-btn-primary" style="display:inline-flex;">Add Your First Listing</a>
             </div>` : ''}
         </div>

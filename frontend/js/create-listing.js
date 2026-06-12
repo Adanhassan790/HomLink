@@ -1,4 +1,4 @@
-import { renderNavbar, showSuccess, showError } from './utils.js';
+import { renderNavbar, showSuccess, showError, getLocalStorage } from './utils.js';
 import { getCurrentUser } from './auth.js';
 
 const API = `${window.location.protocol}//${window.location.host}/api`;
@@ -50,7 +50,7 @@ async function init() {
 
     // Check verification status from the server (localStorage may be stale)
     try {
-        const token = localStorage.getItem('access_token');
+        const token = getLocalStorage('access_token');
         const res = await fetch(`${API}/auth/me/`, {
             headers: { Authorization: `Bearer ${token}` },
         });
@@ -154,8 +154,8 @@ window.toggleAmenity = (id, checked) => {
 };
 
 // ── Map (Leaflet) ─────────────────────────────────────────
-// Pwani University coordinates
-const PWANI = [-3.7225, 39.7553];
+// Kilifi Town Center coordinates
+const PWANI = [-3.6305, 39.8499];
 
 function initMap() {
     if (map) return; // already initialised
@@ -167,12 +167,12 @@ function initMap() {
         maxZoom: 19,
     }).addTo(map);
 
-    // Pwani University reference marker (greyed out)
+    // Kilifi Town Center reference marker
     L.marker(PWANI, {
         icon: L.divIcon({
             className: '',
-            html: '<div style="background:#1A2B4A;color:#fff;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">Pwani University</div>',
-            iconAnchor: [60, 0],
+            html: '<div style="background:#1A2B4A;color:#fff;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap;">Kilifi Town</div>',
+            iconAnchor: [50, 0],
         }),
     }).addTo(map);
 
@@ -448,7 +448,7 @@ window.initiatePayment = async () => {
         }
 
         // Initiate STK push via correct endpoint
-        const token = localStorage.getItem('access_token');
+        const token = getLocalStorage('access_token');
         const res = await fetch(`${API}/payments/initiate_mpesa/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -490,7 +490,7 @@ function startPaymentPolling() {
     paymentPolling = setInterval(async () => {
         attempts++;
         try {
-            const token = localStorage.getItem('access_token');
+            const token = getLocalStorage('access_token');
             const res = await fetch(`${API}/payments/status/${paymentId}/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -557,7 +557,7 @@ window.submitListing = async () => {
 // ── API calls ─────────────────────────────────────────────
 async function createPropertyDraft() {
     try {
-        const token = localStorage.getItem('access_token');
+        const token = getLocalStorage('access_token');
         const payload = {
             title:            document.getElementById('title').value.trim(),
             description:      document.getElementById('description').value.trim(),
@@ -595,7 +595,7 @@ async function createPropertyDraft() {
 }
 
 async function uploadAllPhotos(propertyId) {
-    const token = localStorage.getItem('access_token');
+    const token = getLocalStorage('access_token');
     const catMap = { room: 'ROOM', compound: 'COMPOUND', building: 'BUILDING' };
 
     for (const [cat, slots] of Object.entries(uploadedPhotos)) {
@@ -621,7 +621,7 @@ async function uploadAllPhotos(propertyId) {
 // ── Edit mode helpers ─────────────────────────────────────
 async function loadPropertyForEdit(id) {
     try {
-        const token = localStorage.getItem('access_token');
+        const token = getLocalStorage('access_token');
         const res = await fetch(`${API}/properties/properties/my_listings/`, {
             headers: { Authorization: `Bearer ${token}` },
         });
@@ -716,7 +716,7 @@ function showExistingImages(images) {
 
 async function updatePropertyDraft(id) {
     try {
-        const token = localStorage.getItem('access_token');
+        const token = getLocalStorage('access_token');
         const payload = {
             title:            document.getElementById('title').value.trim(),
             description:      document.getElementById('description').value.trim(),

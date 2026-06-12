@@ -53,20 +53,33 @@ async function loadUsers() {
 }
 
 function renderLandlordQueue() {
-    const unverified = allUsers.filter(u => u.role === 'landlord' && !u.landlord_profile?.is_verified);
-    const container  = document.getElementById('landlord-queue-container');
+    const landlords = allUsers.filter(u => u.role === 'landlord');
+    const container = document.getElementById('landlord-queue-container');
 
-    if (!unverified.length) {
+    if (!landlords.length) {
         container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">✅</div>
-                <h3>All landlords are verified</h3>
-                <p>No pending landlord verifications at this time.</p>
+                <div class="empty-icon">👤</div>
+                <h3>No landlords registered yet</h3>
+                <p>Landlords will appear here once they register.</p>
             </div>`;
         return;
     }
 
-    container.innerHTML = unverified.map(u => buildLandlordCard(u)).join('');
+    const pending  = landlords.filter(u => !u.landlord_profile?.is_verified);
+    const verified = landlords.filter(u =>  u.landlord_profile?.is_verified);
+
+    let html = '';
+    if (pending.length) {
+        html += `<h3 style="color:#92400E;margin-bottom:12px;">⏳ Pending Verification (${pending.length})</h3>`;
+        html += pending.map(u => buildLandlordCard(u)).join('');
+    }
+    if (verified.length) {
+        html += `<h3 style="color:#065F46;margin:24px 0 12px;">✅ Verified Landlords (${verified.length})</h3>`;
+        html += verified.map(u => buildLandlordCard(u)).join('');
+    }
+
+    container.innerHTML = html;
 }
 
 function buildLandlordCard(u) {
@@ -95,10 +108,17 @@ function buildLandlordCard(u) {
                     ${profile.bio ? `<p style="font-size:var(--font-size-sm);color:var(--color-text);margin-top:8px;">${profile.bio}</p>` : ''}
                 </div>
                 <div class="queue-actions">
+                    ${profile.is_verified
+                        ? `<span class="role-badge verify-badge" style="text-align:center;padding:6px 12px;">✅ Verified</span>`
+                        : `<span class="role-badge pending-badge" style="text-align:center;padding:6px 12px;">⏳ Pending</span>`
+                    }
                     ${waDigits ? `<a href="https://wa.me/${waDigits}" target="_blank" class="btn btn-sm btn-secondary">📱 WhatsApp</a>` : ''}
                     <a href="tel:${phone}" class="btn btn-sm btn-secondary">📞 Call</a>
-                    <button class="btn btn-sm btn-primary" onclick="doVerifyLandlord(${u.id})">✅ Verify</button>
-                    <button class="btn btn-sm btn-danger" onclick="openRejectLandlordModal(${u.id})">✕ Reject</button>
+                    ${profile.is_verified
+                        ? `<button class="btn btn-sm btn-danger" onclick="doRevokeLandlord(${u.id})">✕ Revoke</button>`
+                        : `<button class="btn btn-sm btn-primary" onclick="doVerifyLandlord(${u.id})">✅ Verify</button>
+                           <button class="btn btn-sm btn-danger" onclick="openRejectLandlordModal(${u.id})">✕ Reject</button>`
+                    }
                 </div>
             </div>
         </div>`;
@@ -370,8 +390,24 @@ window.submitLandlordRejection = async () => {
     }
 };
 
+window.doRevokeLandlord = async (id) => {
+    if (!confirm('Revoke this landlord\'s verification? They will lose ability to post listings.')) return;
+    try {
+        const token = localStorage.getItem('access_token') ? JSON.parse(localStorage.getItem('access_token')) : null;
+        await fetch(`${API_BASE}/admin/landlords/${id}/reject/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ reason: 'Verification revoked by admin' }),
+        });
+        showSuccess('Landlord verification revoked');
+        await loadUsers();
+    } catch {
+        showError('Failed to revoke landlord');
+    }
+};
+
 window.doApproveProperty = async (id) => {
-    if (!confirm('Approve this property? It will become visible to students.')) return;
+    if (!confirm('Approve this property? It will become visible to tenants.')) return;
     try {
         await approveProperty(id);
         showSuccess('Property approved successfully!');
@@ -421,6 +457,9 @@ window.switchSection = (section) => {
     document.getElementById(section)?.classList.add('active');
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.getElementById(`nav-${section}`)?.classList.add('active');
+    document.querySelectorAll('.mobile-bottom-nav button').forEach(el => el.classList.remove('active'));
+    document.getElementById(`mnav-${section}`)?.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 window.logoutUser = () => {
