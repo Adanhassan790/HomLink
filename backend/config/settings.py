@@ -21,7 +21,9 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lamb
 
 # Application definition
 INSTALLED_APPS = [
-    'jazzmin',
+    'unfold',
+    'unfold.contrib.filters',
+    'unfold.contrib.forms',
     #'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -212,69 +214,84 @@ LOGGING = {
 # Default auto field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-JAZZMIN_SETTINGS = {
-    "site_title": "HomLink Admin",
-    "site_header": "HomLink",
-    "site_brand": "HomLink",
-    "site_logo": None,
-    "welcome_sign": "Welcome to HomLink Admin",
-    "copyright": "HomLink — Pwani University Student Accommodation",
-    "search_model": ["users.User"],
-    "topmenu_links": [
-        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "View Site", "url": "/", "new_window": True},
-        {"name": "Custom Dashboard", "url": "/dashboard-admin.html", "new_window": True},
-    ],
-    "usermenu_links": [
-        {"name": "View Site", "url": "/", "new_window": True},
-    ],
-    "show_sidebar": True,
-    "navigation_expanded": True,
-    "icons": {
-        "auth": "fas fa-users-cog",
-        "auth.user": "fas fa-user",
-        "auth.Group": "fas fa-users",
-        "users.User": "fas fa-user-circle",
-        "properties.Property": "fas fa-home",
-        "payments.Payment": "fas fa-money-bill-wave",
-        "notifications.Notification": "fas fa-bell",
-    },
-    "default_icon_parents": "fas fa-chevron-circle-right",
-    "default_icon_children": "fas fa-circle",
-    "related_modal_active": True,
-    "show_ui_builder": False,
-    "changeform_format": "horizontal_tabs",
-    "language_chooser": False,
-}
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 
-JAZZMIN_UI_TWEAKS = {
-    "navbar_small_text": False,
-    "footer_small_text": False,
-    "body_small_text": False,
-    "brand_small_text": False,
-    "brand_colour": "navbar-success",
-    "accent": "accent-teal",
-    "navbar": "navbar-dark",
-    "no_navbar_border": True,
-    "navbar_fixed": True,
-    "layout_boxed": False,
-    "footer_fixed": False,
-    "sidebar_fixed": True,
-    "sidebar": "sidebar-dark-success",
-    "sidebar_nav_small_text": False,
-    "sidebar_disable_expand": False,
-    "sidebar_nav_child_indent": True,
-    "sidebar_nav_compact_style": False,
-    "sidebar_nav_legacy_style": False,
-    "sidebar_nav_flat_style": False,
-    "theme": "darkly",
-    "dark_mode_theme": "darkly",
-    "button_classes": {
-        "primary": "btn-primary",
-        "secondary": "btn-secondary",
-        "info": "btn-info",
-        "warning": "btn-warning",
-        "danger": "btn-danger",
-        "success": "btn-success",
+UNFOLD = {
+    "SITE_TITLE": "HomLink Admin",
+    "SITE_HEADER": "HomLink",
+    "SITE_SYMBOL": "home",
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "COLORS": {
+        "primary": {
+            "50": "240 253 244",
+            "100": "220 252 231",
+            "200": "187 247 208",
+            "300": "134 239 172",
+            "400": "74 222 128",
+            "500": "34 197 94",
+            "600": "22 163 74",
+            "700": "21 128 61",
+            "800": "20 83 45",
+            "900": "14 61 34",
+            "950": "5 46 22",
+        },
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": _("Navigation"),
+                "items": [
+                    {
+                        "title": _("Dashboard"),
+                        "icon": "dashboard",
+                        "link": reverse_lazy("admin:index"),
+                    },
+                    {
+                        "title": _("Custom Dashboard"),
+                        "icon": "bar_chart",
+                        "link": "/dashboard-admin.html",
+                    },
+                ],
+            },
+            {
+                "title": _("Users & Auth"),
+                "items": [
+                    {
+                        "title": _("Users"),
+                        "icon": "person",
+                        "link": reverse_lazy("admin:users_user_changelist"),
+                    },
+                    {
+                        "title": _("Groups"),
+                        "icon": "group",
+                        "link": reverse_lazy("admin:auth_group_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Properties"),
+                "items": [
+                    {
+                        "title": _("Properties"),
+                        "icon": "home",
+                        "link": reverse_lazy("admin:properties_property_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Payments"),
+                "items": [
+                    {
+                        "title": _("Payments"),
+                        "icon": "payments",
+                        "link": reverse_lazy("admin:payments_payment_changelist"),
+                    },
+                ],
+            },
+        ],
     },
 }
