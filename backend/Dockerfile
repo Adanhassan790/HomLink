@@ -26,4 +26,4 @@ RUN python manage.py collectstatic --noinput || true
 
 EXPOSE $PORT
 
-CMD gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+CMD python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
