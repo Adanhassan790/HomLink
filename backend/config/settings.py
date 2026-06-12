@@ -21,9 +21,6 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lamb
 
 # Application definition
 INSTALLED_APPS = [
-    'unfold',
-    'unfold.contrib.filters',
-    'unfold.contrib.forms',
     #'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -214,25 +211,3 @@ LOGGING = {
 # Default auto field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-UNFOLD = {
-    "SITE_TITLE": "HomLink Admin",
-    "SITE_HEADER": "HomLink",
-    "SITE_SYMBOL": "home",
-    "SHOW_HISTORY": True,
-    "SHOW_VIEW_ON_SITE": True,
-    "COLORS": {
-        "primary": {
-            "50": "240 253 244",
-            "100": "220 252 231",
-            "200": "187 247 208",
-            "300": "134 239 172",
-            "400": "74 222 128",
-            "500": "34 197 94",
-            "600": "22 163 74",
-            "700": "21 128 61",
-            "800": "20 83 45",
-            "900": "14 61 34",
-            "950": "5 46 22",
-        },
-    },
-}
