@@ -214,9 +214,6 @@ LOGGING = {
 # Default auto field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _
-
 UNFOLD = {
     "SITE_TITLE": "HomLink Admin",
     "SITE_HEADER": "HomLink",
@@ -237,61 +234,5 @@ UNFOLD = {
             "900": "14 61 34",
             "950": "5 46 22",
         },
-    },
-    "SIDEBAR": {
-        "show_search": True,
-        "show_all_applications": True,
-        "navigation": [
-            {
-                "title": _("Navigation"),
-                "items": [
-                    {
-                        "title": _("Dashboard"),
-                        "icon": "dashboard",
-                        "link": reverse_lazy("admin:index"),
-                    },
-                    {
-                        "title": _("Custom Dashboard"),
-                        "icon": "bar_chart",
-                        "link": "/dashboard-admin.html",
-                    },
-                ],
-            },
-            {
-                "title": _("Users & Auth"),
-                "items": [
-                    {
-                        "title": _("Users"),
-                        "icon": "person",
-                        "link": reverse_lazy("admin:users_user_changelist"),
-                    },
-                    {
-                        "title": _("Groups"),
-                        "icon": "group",
-                        "link": reverse_lazy("admin:auth_group_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": _("Properties"),
-                "items": [
-                    {
-                        "title": _("Properties"),
-                        "icon": "home",
-                        "link": reverse_lazy("admin:properties_property_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": _("Payments"),
-                "items": [
-                    {
-                        "title": _("Payments"),
-                        "icon": "payments",
-                        "link": reverse_lazy("admin:payments_payment_changelist"),
-                    },
-                ],
-            },
-        ],
     },
 }
