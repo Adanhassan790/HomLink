@@ -363,13 +363,23 @@ export function renderNavbar(user = null) {
     </nav>
   `;
 
-  const navContainer = document.querySelector('.navbar') || document.createElement('div');
-  if (!document.querySelector('.navbar')) {
-    navContainer.innerHTML = navbarHTML;
-    document.body.insertBefore(navContainer, document.body.firstChild);
-  } else {
-    navContainer.innerHTML = navbarHTML;
+  // Ensure navbar.css is loaded (safety net for pages that forget to link it)
+  if (!document.querySelector('link[href*="navbar.css"]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'css/navbar.css';
+    document.head.appendChild(link);
   }
+
+  // Insert into #navbar wrapper (keeps a stable anchor for other JS to use)
+  // Avoid nesting navs — always use the #navbar div as the container
+  let navRoot = document.getElementById('navbar');
+  if (!navRoot) {
+    navRoot = document.createElement('div');
+    navRoot.id = 'navbar';
+    document.body.insertAdjacentElement('afterbegin', navRoot);
+  }
+  navRoot.innerHTML = navbarHTML;
 
   // Hamburger toggle
   const hamburger = document.getElementById('nav-hamburger');

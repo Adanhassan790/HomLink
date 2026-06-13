@@ -10,6 +10,7 @@
   top: 0;
   z-index: 100;
   box-shadow: var(--shadow-md);
+  overflow: visible; /* allow dropdowns to overflow */
 }
 
 .navbar-container {
@@ -38,8 +39,11 @@
 .navbar-logo-img {
   height: 56px;
   width: auto;
+  max-width: 160px;
+  max-height: 56px;
   object-fit: contain;
   display: block;
+  flex-shrink: 0;
 }
 
 .navbar-logo-name {
@@ -257,14 +261,18 @@
   display: none;
   flex-direction: column;
   background: #0f1c30;
-  padding: 8px 0 16px;
+  padding: 0;
   border-top: 1px solid rgba(255,255,255,.08);
   max-height: 0;
   overflow: hidden;
-  transition: max-height .3s ease;
+  visibility: hidden;
+  transition: max-height .3s ease, visibility 0s linear .3s, padding .3s ease;
 }
 .nav-drawer.open {
   max-height: 600px;
+  visibility: visible;
+  padding: 8px 0 16px;
+  transition: max-height .3s ease, visibility 0s linear 0s, padding .3s ease;
 }
 .nav-drawer-user {
   display: flex;
