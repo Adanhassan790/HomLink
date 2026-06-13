@@ -27,90 +27,157 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── GALLERY ── */
-        .property-gallery {
+        /* ── GALLERY WRAPPER ── */
+        .property-gallery { margin-bottom: 24px; }
+
+        /* ── DESKTOP: AIRBNB-STYLE PHOTO GRID ── */
+        .photo-grid-wrap {
+            position: relative;
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(0,0,0,.12);
-            margin-bottom: 24px;
-            background: #111;
+            background: #1A2B4A;
         }
+        /* 1 image: full width, tall */
+        .photo-grid-wrap.pg-1 { height: 460px; display: grid; grid-template-columns: 1fr; }
+        /* 2 images: left bigger */
+        .photo-grid-wrap.pg-2 { height: 460px; display: grid; grid-template-columns: 1.7fr 1fr; gap: 3px; }
+        /* 3 images: main left spans full height, 2 stacked right */
+        .photo-grid-wrap.pg-3 { height: 460px; display: grid; grid-template-columns: 1.7fr 1fr; grid-template-rows: 1fr 1fr; gap: 3px; }
+        .photo-grid-wrap.pg-3 .pg-item:first-child { grid-row: 1 / 3; }
+        /* 4+ images: main big left, 2×2 right */
+        .photo-grid-wrap.pg-many { height: 486px; display: grid; grid-template-columns: 1.7fr 1fr 1fr; grid-template-rows: 243px 243px; gap: 3px; }
+        .photo-grid-wrap.pg-many .pg-item:first-child { grid-row: 1 / 3; }
+        /* when only 4 items, span the 4th across both right columns */
+        .photo-grid-wrap.pg-many .pg-item.pg-span { grid-column: 2 / 4; }
+
+        .pg-item {
+            overflow: hidden; position: relative;
+            background: #1A2B4A; cursor: pointer;
+        }
+        .pg-item img {
+            width: 100%; height: 100%;
+            object-fit: cover; display: block;
+            transition: transform 0.35s;
+        }
+        .pg-item:hover img { transform: scale(1.04); }
+
+        /* "+N more" dark overlay on last image */
+        .pg-more {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.52);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: #fff; pointer-events: none;
+        }
+        .pg-more-count { font-size: 30px; font-weight: 800; line-height: 1; }
+        .pg-more-label { font-size: 13px; font-weight: 600; opacity: .85; margin-top: 4px; }
+
+        /* "Show all X photos" button bottom-right */
+        .pg-show-all {
+            position: absolute; bottom: 14px; right: 14px;
+            background: rgba(255,255,255,0.96);
+            border: 1.5px solid #e5e8ed; border-radius: 10px;
+            padding: 9px 16px; font-size: 13px; font-weight: 700;
+            color: #1A2B4A; cursor: pointer;
+            box-shadow: 0 2px 14px rgba(0,0,0,0.18);
+            display: flex; align-items: center; gap: 7px;
+            transition: background .15s, transform .15s; z-index: 5;
+        }
+        .pg-show-all:hover { background: #fff; transform: translateY(-1px); }
+        .pg-show-all svg { flex-shrink: 0; stroke: #1A2B4A; }
+
+        /* No-photo state */
+        .pg-no-photo {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 14px; color: #6b7280;
+            height: 360px; border-radius: 16px;
+            background: #f4f6f9;
+            box-shadow: 0 4px 20px rgba(0,0,0,.06);
+        }
+        .pg-no-photo span:first-child { font-size: 4rem; }
+        .pg-no-photo span:last-child  { font-size: 14px; color: #9ca3af; }
+
+        /* ── MOBILE: CAROUSEL ── */
+        .carousel-wrap { display: none; }
 
         .main-image-container {
-            position: relative;
-            width: 100%;
-            height: 460px;
-            background: #1A2B4A;
-            overflow: hidden;
+            position: relative; width: 100%; height: 460px;
+            background: #1A2B4A; overflow: hidden;
         }
-
         .main-image {
             width: 100%; height: 100%;
             object-fit: cover; display: block;
             transition: opacity .25s;
         }
-
-        /* Left / Right arrow buttons */
         .gallery-btn {
-            position: absolute;
-            top: 50%; transform: translateY(-50%);
-            width: 44px; height: 44px;
-            border-radius: 50%;
-            background: rgba(255,255,255,.88);
-            border: none; cursor: pointer;
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 44px; height: 44px; border-radius: 50%;
+            background: rgba(255,255,255,.88); border: none; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             font-size: 18px; font-weight: bold;
             box-shadow: 0 2px 10px rgba(0,0,0,.25);
-            transition: background .15s, transform .15s;
-            z-index: 10;
+            transition: background .15s, transform .15s; z-index: 10;
         }
         .gallery-btn:hover { background: #fff; transform: translateY(-50%) scale(1.08); }
         .gallery-btn.prev { left: 14px; }
         .gallery-btn.next { right: 14px; }
-
-        /* Counter overlay */
         .gallery-counter {
-            position: absolute;
-            bottom: 12px; right: 14px;
-            background: rgba(0,0,0,.55);
-            color: #fff; font-size: 12px; font-weight: 600;
-            padding: 4px 10px; border-radius: 12px;
+            position: absolute; bottom: 12px; right: 14px;
+            background: rgba(0,0,0,.55); color: #fff;
+            font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 12px;
         }
-
-        /* Thumbnail strip */
         .gallery-thumbnails {
-            display: flex;
-            gap: 4px;
-            overflow-x: auto;
-            background: #0d0d0d;
-            padding: 6px 8px;
-            scrollbar-width: thin;
-            scrollbar-color: #555 #111;
+            display: flex; gap: 4px; overflow-x: auto;
+            background: #0d0d0d; padding: 6px 8px;
+            scrollbar-width: thin; scrollbar-color: #555 #111;
         }
         .gallery-thumbnails::-webkit-scrollbar { height: 3px; }
         .gallery-thumbnails::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
-
         .thumbnail {
-            flex-shrink: 0;
-            width: 88px; height: 58px;
-            border-radius: 5px; overflow: hidden;
-            cursor: pointer; opacity: .55;
-            border: 2px solid transparent;
+            flex-shrink: 0; width: 88px; height: 58px;
+            border-radius: 5px; overflow: hidden; cursor: pointer;
+            opacity: .55; border: 2px solid transparent;
             transition: opacity .2s, border-color .2s;
         }
         .thumbnail:hover { opacity: .8; }
         .thumbnail.active { border-color: #1B7F4F; opacity: 1; }
         .thumbnail img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-        /* No-image fallback */
-        .no-image-placeholder {
-            width: 100%; height: 100%;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            gap: 12px; color: #6b7280; background: #f4f6f9;
+        /* ── PHOTO LIGHTBOX (all photos fullscreen) ── */
+        .photo-lightbox {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.96); z-index: 9999;
+            overflow-y: auto; -webkit-overflow-scrolling: touch;
         }
-        .no-image-placeholder span:first-child { font-size: 3.5rem; }
-        .no-image-placeholder span:last-child  { font-size: 14px; }
+        .photo-lightbox.lb-open { display: block; }
+        .lb-topbar {
+            position: sticky; top: 0; z-index: 10;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            display: flex; align-items: center;
+            justify-content: space-between; padding: 13px 20px;
+        }
+        .lb-topbar-title { color: rgba(255,255,255,.7); font-size: 14px; font-weight: 600; }
+        .lb-close-btn {
+            background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+            color: #fff; border-radius: 8px; padding: 7px 16px;
+            font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s;
+        }
+        .lb-close-btn:hover { background: rgba(255,255,255,.22); }
+        .lb-imgs-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 3px; padding: 3px;
+        }
+        .lb-img {
+            aspect-ratio: 4/3; overflow: hidden;
+            background: #1A2B4A; cursor: pointer;
+        }
+        .lb-img img {
+            width: 100%; height: 100%;
+            object-fit: cover; display: block; transition: transform .25s;
+        }
+        .lb-img:hover img { transform: scale(1.04); }
 
         /* ── TWO-COLUMN LAYOUT ── */
         .property-details-row {
@@ -404,24 +471,25 @@
         @media (max-width: 900px) {
             .property-details-row { grid-template-columns: 1fr; }
             .sidebar { position: static; }
-            .main-image-container { height: 280px; }
         }
 
-        /* Tablet */
+        /* Switch to carousel on tablet/phone */
         @media (max-width: 768px) {
+            .photo-grid-wrap { display: none !important; }
+            .carousel-wrap { display: block; }
             .mob-bar { display: flex; }
-            /* Extra bottom padding so content isn't hidden behind bar */
             .property-detail-container { padding-bottom: 88px; }
-            /* Hide sidebar contact card — bottom bar replaces it */
             .sidebar-card:first-child { display: none; }
             .main-image-container { height: 260px; }
             .gallery-btn { width: 38px; height: 38px; font-size: 16px; }
+            .lb-imgs-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         /* Phone */
         @media (max-width: 600px) {
             .property-detail-container { padding: 0 0 88px; }
-            .property-gallery { border-radius: 0; margin-bottom: 12px; }
+            .property-gallery { margin-bottom: 12px; }
+            .carousel-wrap { border-radius: 0; }
             .main-image-container { height: 230px; }
             .gallery-btn { width: 36px; height: 36px; font-size: 15px; }
             .thumbnail { width: 72px; height: 48px; }
@@ -439,6 +507,7 @@
             .mob-bar-btn { font-size: 12px; padding: 11px 6px; }
             .mob-bar-price-amount { font-size: 14px; }
             .prop-card { padding: 12px; }
+            .lb-imgs-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
@@ -454,13 +523,21 @@
 
             <!-- ── GALLERY ── -->
             <div class="property-gallery">
-                <div class="main-image-container" id="main-img-wrap">
-                    <img id="main-image" src="" alt="Property image" class="main-image">
-                    <button class="gallery-btn prev" onclick="prevImage()">&#10094;</button>
-                    <button class="gallery-btn next" onclick="nextImage()">&#10095;</button>
-                    <div class="gallery-counter" id="gallery-counter" style="display:none;">1 / 1</div>
+
+                <!-- Desktop: Airbnb-style photo grid (hidden on mobile) -->
+                <div class="photo-grid-wrap" id="photo-grid-wrap"></div>
+
+                <!-- Mobile: swipeable carousel (hidden on desktop) -->
+                <div class="carousel-wrap">
+                    <div class="main-image-container" id="main-img-wrap">
+                        <img id="main-image" src="" alt="Property image" class="main-image">
+                        <button class="gallery-btn prev" onclick="prevImage()">&#10094;</button>
+                        <button class="gallery-btn next" onclick="nextImage()">&#10095;</button>
+                        <div class="gallery-counter" id="gallery-counter" style="display:none;">1 / 1</div>
+                    </div>
+                    <div id="thumbnails" class="gallery-thumbnails"></div>
                 </div>
-                <div id="thumbnails" class="gallery-thumbnails"></div>
+
             </div>
 
             <!-- ── TWO-COLUMN LAYOUT ── -->
@@ -608,6 +685,15 @@
                 <button type="submit" class="btn btn-primary btn-block">Send Message</button>
             </form>
         </div>
+    </div>
+
+    <!-- Photo lightbox: all photos in a scrollable grid -->
+    <div class="photo-lightbox" id="photo-lightbox" onclick="if(event.target===this)closeLightbox()">
+        <div class="lb-topbar">
+            <span class="lb-topbar-title" id="lb-topbar-title"></span>
+            <button class="lb-close-btn" onclick="closeLightbox()">✕ Close</button>
+        </div>
+        <div class="lb-imgs-grid" id="lb-imgs-grid"></div>
     </div>
 
     <!-- Mobile fixed bottom bar -->

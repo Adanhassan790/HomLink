@@ -165,51 +165,123 @@ function renderProperty() {
 }
 
 /**
- * Render image gallery
+ * Render image gallery — Airbnb-style grid on desktop, carousel on mobile
  */
 function renderGallery() {
     const images = currentProperty.images || [];
-    const primaryImage = currentProperty.primary_image;
 
+    // ── No photos ──
     if (!images.length) {
-        // No photos — show placeholder
-        const wrap = document.getElementById('main-img-wrap');
-        wrap.innerHTML = `
-            <div class="no-image-placeholder">
-                <span>🏠</span>
-                <span>No photos uploaded yet</span>
+        document.getElementById('photo-grid-wrap').innerHTML = `
+            <div class="pg-no-photo">
+                <span>🏠</span><span>No photos uploaded yet</span>
+            </div>`;
+        document.getElementById('main-img-wrap').innerHTML = `
+            <div class="pg-no-photo" style="height:260px;">
+                <span>🏠</span><span>No photos uploaded yet</span>
             </div>`;
         document.getElementById('thumbnails').style.display = 'none';
         return;
     }
 
-    // Set main image to primary if available
+    // Set primary image first
+    const primaryImage = currentProperty.primary_image;
     if (primaryImage) {
         currentImageIndex = images.findIndex(img => img.id === primaryImage.id);
         if (currentImageIndex === -1) currentImageIndex = 0;
     }
 
-    updateMainImage();
+    // ── Desktop: photo grid ──
+    buildPhotoGrid(images);
 
-    // Render thumbnails (only if more than 1 image)
+    // ── Mobile: carousel ──
+    updateMainImage();
     if (images.length > 1) {
-        const thumbnailsHtml = images.map((img, idx) => `
+        document.getElementById('thumbnails').innerHTML = images.map((img, idx) => `
             <div class="thumbnail ${idx === currentImageIndex ? 'active' : ''}" onclick="setImageIndex(${idx})">
-                <img src="${img.image}" alt="Property image ${idx + 1}">
-            </div>
-        `).join('');
-        document.getElementById('thumbnails').innerHTML = thumbnailsHtml;
+                <img src="${img.image}" alt="Photo ${idx + 1}" loading="lazy">
+            </div>`).join('');
+        const counter = document.getElementById('gallery-counter');
+        if (counter) { counter.style.display = 'block'; counter.textContent = `1 / ${images.length}`; }
     } else {
         document.getElementById('thumbnails').style.display = 'none';
     }
 
-    // Show counter only when multiple images
-    const counter = document.getElementById('gallery-counter');
-    if (images.length > 1) {
-        counter.style.display = 'block';
-        counter.textContent = `1 / ${images.length}`;
-    }
+    // ── Lightbox: all photos ──
+    document.getElementById('lb-topbar-title').textContent =
+        `${images.length} photo${images.length !== 1 ? 's' : ''} · ${currentProperty.title}`;
+    document.getElementById('lb-imgs-grid').innerHTML = images.map((img, i) => `
+        <div class="lb-img" onclick="window.open('${img.image}','_blank')" title="Open full size">
+            <img src="${img.image}" alt="Photo ${i + 1}" loading="lazy">
+        </div>`).join('');
 }
+
+/**
+ * Build the Airbnb-style photo grid for desktop
+ */
+function buildPhotoGrid(images) {
+    const wrap = document.getElementById('photo-grid-wrap');
+    const total = images.length;
+    const show  = Math.min(total, 5);
+
+    let gridClass, html = '';
+
+    if (show === 1) {
+        gridClass = 'pg-1';
+        html = pgItem(images[0], 0, false);
+    } else if (show === 2) {
+        gridClass = 'pg-2';
+        for (let i = 0; i < 2; i++) html += pgItem(images[i], i, false);
+    } else if (show === 3) {
+        gridClass = 'pg-3';
+        for (let i = 0; i < 3; i++) html += pgItem(images[i], i, false);
+    } else {
+        // 4 or 5 images — three-column grid
+        gridClass = 'pg-many';
+        for (let i = 0; i < show; i++) {
+            const isLast = (i === show - 1) && (total > 5);
+            // If only 4 items, the 4th spans both right columns to avoid an empty cell
+            const spanClass = (show === 4 && i === 3) ? ' pg-span' : '';
+            html += pgItem(images[i], i, isLast, total, spanClass);
+        }
+    }
+
+    // "Show all" button (only when >1 photo)
+    if (total > 1) {
+        html += `
+        <button class="pg-show-all" onclick="event.stopPropagation();openLightbox()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </svg>
+            Show all ${total} photo${total !== 1 ? 's' : ''}
+        </button>`;
+    }
+
+    wrap.className = `photo-grid-wrap ${gridClass}`;
+    wrap.innerHTML = html;
+}
+
+function pgItem(img, idx, showMore, total = 0, extraClass = '') {
+    const moreHtml = showMore
+        ? `<div class="pg-more"><span class="pg-more-count">+${total - 5}</span><span class="pg-more-label">more photos</span></div>`
+        : '';
+    return `
+        <div class="pg-item${extraClass}" onclick="openLightbox()">
+            <img src="${img.image}" alt="Photo ${idx + 1}" ${idx > 0 ? 'loading="lazy"' : ''}
+                 onerror="this.style.display='none'">
+            ${moreHtml}
+        </div>`;
+}
+
+window.openLightbox = function () {
+    document.getElementById('photo-lightbox').classList.add('lb-open');
+    document.body.style.overflow = 'hidden';
+};
+window.closeLightbox = function () {
+    document.getElementById('photo-lightbox').classList.remove('lb-open');
+    document.body.style.overflow = '';
+};
 
 /**
  * Render reviews
