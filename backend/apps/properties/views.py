@@ -167,7 +167,7 @@ class PropertyViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
     
     def perform_create(self, serializer):
-        serializer.save(landlord=self.request.user)
+        serializer.save(landlord=self.request.user, is_approved=True)
     
     def perform_update(self, serializer):
         if serializer.instance.landlord != self.request.user and not self.request.user.is_staff:
