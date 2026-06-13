@@ -241,28 +241,29 @@
         /* ── Property Card ── */
         .pc {
             background: #fff;
-            border-radius: 12px;
+            border-radius: 14px;
             overflow: hidden;
-            border: 1px solid #e9ecf0;
+            border: 1px solid #e4e8ed;
             cursor: pointer;
             transition: transform .18s, box-shadow .18s;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 2px 8px rgba(0,0,0,.06);
         }
-        .pc:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(26,43,74,.12); }
+        .pc:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(26,43,74,.14); }
         .pc:focus-visible { outline: 2px solid #1B7F4F; outline-offset: 2px; }
 
+        /* Image */
         .pc-img-wrap {
             position: relative;
-            height: 170px;
+            height: 210px;
             background: #e9ecf0;
             overflow: hidden;
             flex-shrink: 0;
         }
         .pc-img-wrap img {
             width: 100%; height: 100%;
-            object-fit: cover;
-            display: block;
+            object-fit: cover; display: block;
             transition: transform .3s;
         }
         .pc:hover .pc-img-wrap img { transform: scale(1.04); }
@@ -270,60 +271,69 @@
             width: 100%; height: 100%;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            gap: 6px; color: #9ca3af;
+            gap: 8px; color: #9ca3af; background: #f4f6f9;
         }
-        .pc-no-img svg { width: 32px; height: 32px; stroke: #d1d5db; fill: none; stroke-width: 1.5; }
-        .pc-no-img span { font-size: 12px; }
+        .pc-no-img .pc-no-img-icon { font-size: 2.5rem; }
+        .pc-no-img .pc-no-img-label { font-size: 12px; }
 
-        .pc-badges {
-            position: absolute; top: 10px; left: 10px;
-            display: flex; flex-wrap: wrap; gap: 4px;
+        /* Hero badge (top-left of image) */
+        .pc-hero-badge {
+            position: absolute; top: 12px; left: 12px;
+            padding: 5px 12px; border-radius: 20px;
+            font-size: 11px; font-weight: 700; letter-spacing: .02em;
         }
-        .pc-badge {
-            font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px;
-            letter-spacing: .02em;
-        }
-        .pc-badge-featured { background: #fef3c7; color: #92400e; }
-        .pc-badge-verified { background: #d1fae5; color: #065f46; }
-        .pc-badge-campus  { background: #dbeafe; color: #1e40af; }
+        .pc-hb-featured { background: #1B7F4F; color: #fff; }
+        .pc-hb-verified  { background: #1A2B4A; color: #fff; }
 
-        .pc-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
-
-        .pc-type {
-            font-size: 11px; font-weight: 700; text-transform: uppercase;
-            letter-spacing: .06em; color: #1B7F4F;
+        /* Details section */
+        .pc-details {
+            padding: 16px 18px 14px;
+            display: flex; flex-direction: column; gap: 9px;
+            flex: 1;
+            border-bottom: 1px solid #f0f2f5;
         }
         .pc-title {
-            font-size: 14px; font-weight: 700; color: #1A2B4A;
-            line-height: 1.3; margin: 0;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+            font-size: 15px; font-weight: 700; color: #1A2B4A;
+            line-height: 1.35; margin: 0;
+            display: -webkit-box; -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; overflow: hidden;
         }
-        .pc-loc {
-            display: flex; align-items: center; gap: 4px;
-            font-size: 12px; color: #6b7280;
+        .pc-feat-row {
+            display: flex; align-items: center; gap: 9px;
+            font-size: 13px; color: #4b5563; line-height: 1.3;
         }
-        .pc-loc svg { width: 12px; height: 12px; stroke: #9ca3af; fill: none; stroke-width: 2; flex-shrink: 0; }
+        .pc-feat-row strong { color: #1A2B4A; }
+        .pc-feat-icon { font-size: 14px; flex-shrink: 0; width: 18px; text-align: center; }
 
-        .pc-footer {
+        /* Price + CTA bar */
+        .pc-price-bar {
+            padding: 13px 18px;
             display: flex; align-items: center; justify-content: space-between;
-            margin-top: auto; padding-top: 10px;
-            border-top: 1px solid #f0f2f5;
+            gap: 12px; background: #f8fafb;
         }
-        .pc-price { font-size: 16px; font-weight: 800; color: #1A2B4A; }
-        .pc-price span { font-size: 11px; font-weight: 500; color: #9ca3af; }
-        .pc-cta {
-            font-size: 12px; font-weight: 700; color: #1B7F4F;
-            display: flex; align-items: center; gap: 3px;
+        .pc-from { font-size: 11px; color: #9ca3af; line-height: 1; }
+        .pc-amount {
+            font-size: 19px; font-weight: 800; color: #1A2B4A;
+            line-height: 1.2; margin-top: 2px;
         }
-        .pc-cta svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+        .pc-period { font-size: 12px; font-weight: 500; color: #9ca3af; }
+        .pc-select-btn {
+            background: #1B7F4F; color: #fff;
+            border: none; border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 12px; font-weight: 700; letter-spacing: .04em;
+            cursor: pointer; white-space: nowrap;
+            transition: background .15s; text-transform: uppercase;
+        }
+        .pc-select-btn:hover { background: #166c42; }
 
         /* ── Skeleton loader ── */
         .pc-skel {
-            background: #fff; border-radius: 12px; overflow: hidden;
-            border: 1px solid #e9ecf0;
+            background: #fff; border-radius: 14px; overflow: hidden;
+            border: 1px solid #e4e8ed; box-shadow: 0 2px 8px rgba(0,0,0,.06);
         }
-        .skel-img  { height: 170px; background: #f0f2f5; }
-        .skel-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+        .skel-img  { height: 210px; background: #f0f2f5; }
+        .skel-body { padding: 16px 18px 16px; display: flex; flex-direction: column; gap: 10px; }
         .skel-line {
             height: 12px; border-radius: 6px;
             background: linear-gradient(90deg, #f0f2f5 25%, #e5e8ed 50%, #f0f2f5 75%);
@@ -388,13 +398,19 @@
             .sp-main { padding: 16px; }
             .sp-grid { grid-template-columns: 1fr; }
         }
+        @media (max-width: 480px) {
+            .pc-img-wrap { height: 185px; }
+            .pc-title    { font-size: 14px; }
+            .pc-amount   { font-size: 17px; }
+            .pc-select-btn { padding: 9px 12px; font-size: 11px; }
+        }
         @media (max-width: 375px) {
-            .sp-main          { padding: 10px; }
-            .sp-grid          { gap: 10px; }
-            .sp-toolbar       { flex-direction: column; align-items: flex-start; gap: 8px; }
-            .sp-sort          { width: 100%; }
-            .pc-img-wrap      { height: 150px !important; }
-            .sp-sidebar       { width: 100%; max-width: 100vw; }
+            .sp-main     { padding: 10px; }
+            .sp-grid     { gap: 10px; }
+            .sp-toolbar  { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .sp-sort     { width: 100%; }
+            .pc-img-wrap { height: 165px; }
+            .sp-sidebar  { width: 100%; max-width: 100vw; }
         }
     </style>
 </head>
@@ -452,11 +468,11 @@
             <div class="sf-group">
                 <p class="sf-label">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    Distance from Campus
+                    Distance from Kilifi Town
                     <span class="sf-dist-badge" id="sf-dist-val">5 km</span>
                 </p>
                 <input type="range" id="sf-dist" class="sf-slider" min="0" max="5" step="0.5" value="5">
-                <div class="sf-slider-labels"><span>On campus</span><span>5 km</span></div>
+                <div class="sf-slider-labels"><span>Town center</span><span>5 km</span></div>
             </div>
 
             <!-- Amenities -->
@@ -480,7 +496,7 @@
                     <label class="sf-check-label"><input type="checkbox" id="sf-furnished"> Furnished</label>
                     <label class="sf-check-label"><input type="checkbox" id="sf-wifi"> WiFi Available</label>
                     <label class="sf-check-label"><input type="checkbox" id="sf-security"> 24/7 Security</label>
-                    <label class="sf-check-label"><input type="checkbox" id="sf-near-campus"> Near Campus (&lt;1 km)</label>
+                    <label class="sf-check-label"><input type="checkbox" id="sf-near-campus"> Near Kilifi Town (&lt;1 km)</label>
                 </div>
             </div>
 

@@ -169,43 +169,57 @@ function renderGrid(list) {
 }
 
 function buildCard(p) {
-    const img     = p.primary_image?.image || p.images?.[0]?.image || null;
+    const img     = p.primary_image?.image || null;
     const price   = parseInt(p.rent_amount || 0).toLocaleString();
     const area    = p.location_area_name || 'Kilifi';
     const typeStr = TYPE_LABELS[p.property_type] || (p.property_type || '').replace(/_/g, ' ');
     const dist    = p.distance_display || '';
+    const estate  = (p.estate || '').trim();
 
-    const badges = [];
-    if (p.is_featured) badges.push(`<span class="pc-badge pc-badge-featured">Featured</span>`);
-    if (p.is_verified) badges.push(`<span class="pc-badge pc-badge-verified">Verified</span>`);
-    if (dist)          badges.push(`<span class="pc-badge pc-badge-campus">${dist}</span>`);
-
-    const pinSvg = `<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
-    const homeSvg = `<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
-    const arrSvg  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+    let heroBadge = '';
+    if (p.is_featured)      heroBadge = `<div class="pc-hero-badge pc-hb-featured">★ Featured</div>`;
+    else if (p.is_verified) heroBadge = `<div class="pc-hero-badge pc-hb-verified">✓ Verified</div>`;
 
     return `
     <div class="pc" role="article" tabindex="0"
         onclick="location.href='property.html?id=${p.id}'"
         onkeydown="if(event.key==='Enter')location.href='property.html?id=${p.id}'">
+
         <div class="pc-img-wrap">
             ${img
                 ? `<img src="${img}" alt="${p.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
                 : ''
             }
             <div class="pc-no-img" style="${img ? 'display:none' : ''}">
-                ${homeSvg}<span>No photo yet</span>
+                <span class="pc-no-img-icon">🏠</span>
+                <span class="pc-no-img-label">No photo yet</span>
             </div>
-            ${badges.length ? `<div class="pc-badges">${badges.join('')}</div>` : ''}
+            ${heroBadge}
         </div>
-        <div class="pc-body">
-            ${typeStr ? `<span class="pc-type">${typeStr}</span>` : ''}
+
+        <div class="pc-details">
             <h3 class="pc-title">${p.title}</h3>
-            <p class="pc-loc">${pinSvg} ${area}</p>
-            <div class="pc-footer">
-                <div class="pc-price">KES ${price}<span>/mo</span></div>
-                <span class="pc-cta">View ${arrSvg}</span>
+            <div class="pc-feat-row">
+                <span class="pc-feat-icon">📍</span>
+                <span>${area}${estate ? ` &middot; ${estate}` : ''}</span>
             </div>
+            <div class="pc-feat-row">
+                <span class="pc-feat-icon">🏠</span>
+                <span>${typeStr}</span>
+            </div>
+            ${dist ? `
+            <div class="pc-feat-row">
+                <span class="pc-feat-icon">📏</span>
+                <span>${dist} from Kilifi Town</span>
+            </div>` : ''}
+        </div>
+
+        <div class="pc-price-bar">
+            <div>
+                <div class="pc-from">from</div>
+                <div class="pc-amount">KES ${price}<span class="pc-period"> /mo</span></div>
+            </div>
+            <button class="pc-select-btn" onclick="event.stopPropagation();location.href='property.html?id=${p.id}'">VIEW PROPERTY ›</button>
         </div>
     </div>`;
 }
@@ -217,10 +231,16 @@ function showSkeletons() {
         <div class="pc-skel">
             <div class="skel-img"></div>
             <div class="skel-body">
-                <div class="skel-line" style="width:40%"></div>
                 <div class="skel-line" style="width:80%"></div>
-                <div class="skel-line" style="width:60%"></div>
-                <div class="skel-line" style="width:50%;margin-top:8px"></div>
+                <div class="skel-line" style="width:55%"></div>
+                <div class="skel-line" style="width:45%"></div>
+            </div>
+            <div style="padding:13px 18px;background:#f8fafb;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                    <div class="skel-line" style="width:30px;height:9px"></div>
+                    <div class="skel-line" style="width:110px;height:18px"></div>
+                </div>
+                <div class="skel-line" style="width:110px;height:36px;border-radius:8px"></div>
             </div>
         </div>`).join('');
     document.getElementById('sp-pagination').innerHTML = '';
