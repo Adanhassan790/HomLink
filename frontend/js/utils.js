@@ -471,7 +471,7 @@ export function renderFooter() {
           <li><a href="mailto:ibnuhassan7064@gmail.com">ibnuhassan7064@gmail.com</a></li>
           <li><a href="tel:+254757734299">+254 757 734 299</a></li>
           <li><a href="https://wa.me/254757734299" target="_blank" rel="noopener">WhatsApp Us</a></li>
-          <li><p style="color: #B0BEC5; margin-bottom: 0;">Nairobi, Kenya</p></li>
+          <li><p style="color: #B0BEC5; margin-bottom: 0;">Kilifi, Kenya</p></li>
         </ul>
       </div>
     </div>
