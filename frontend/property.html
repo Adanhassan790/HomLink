@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,433 +6,376 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Property Details - HomLink</title>
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/kilifi-student.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
     <style>
-        #property-map {
-            width: 100%;
-            height: 400px;
-            border-radius: 8px;
-            margin-bottom: var(--spacing-md);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .map-legend {
-            display: flex;
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-md);
-            font-size: 0.9rem;
-            flex-wrap: wrap;
-        }
-        .map-legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .legend-marker {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-        .marker-pwani { background-color: #3b82f6; }
-        .marker-property { background-color: #ef4444; }
-    </style>
-    <style>
+        body { background: #f4f6f9; }
+
+        /* ── PAGE WRAPPER ── */
         .property-detail-container {
-            max-width: 1200px;
-            margin: var(--spacing-xl) auto;
-            padding: 0 var(--spacing-lg);
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px 20px 60px;
         }
 
+        /* ── LOADING ── */
+        .loading { text-align: center; padding: 80px 24px; }
+        .spinner {
+            display: inline-block; width: 40px; height: 40px;
+            border: 4px solid #e5e8ed; border-top-color: #1B7F4F;
+            border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── GALLERY ── */
         .property-gallery {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: var(--spacing-lg);
-            margin-bottom: var(--spacing-xl);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,.12);
+            margin-bottom: 24px;
+            background: #111;
         }
 
         .main-image-container {
             position: relative;
             width: 100%;
-            aspect-ratio: 16 / 9;
-            background: var(--color-bg);
-            border-radius: 8px;
+            height: 460px;
+            background: #1A2B4A;
             overflow: hidden;
         }
 
         .main-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            width: 100%; height: 100%;
+            object-fit: cover; display: block;
+            transition: opacity .25s;
         }
 
-        .gallery-controls {
+        /* Left / Right arrow buttons */
+        .gallery-btn {
             position: absolute;
-            bottom: var(--spacing-lg);
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: var(--spacing-md);
+            top: 50%; transform: translateY(-50%);
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.88);
+            border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,.25);
+            transition: background .15s, transform .15s;
             z-index: 10;
         }
+        .gallery-btn:hover { background: #fff; transform: translateY(-50%) scale(1.08); }
+        .gallery-btn.prev { left: 14px; }
+        .gallery-btn.next { right: 14px; }
 
-        .gallery-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            font-size: 1.2rem;
+        /* Counter overlay */
+        .gallery-counter {
+            position: absolute;
+            bottom: 12px; right: 14px;
+            background: rgba(0,0,0,.55);
+            color: #fff; font-size: 12px; font-weight: 600;
+            padding: 4px 10px; border-radius: 12px;
         }
 
-        .gallery-btn:hover {
-            background: var(--color-white);
-        }
-
+        /* Thumbnail strip */
         .gallery-thumbnails {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: var(--spacing-md);
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            background: #0d0d0d;
+            padding: 6px 8px;
+            scrollbar-width: thin;
+            scrollbar-color: #555 #111;
         }
+        .gallery-thumbnails::-webkit-scrollbar { height: 3px; }
+        .gallery-thumbnails::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
 
         .thumbnail {
-            aspect-ratio: 1;
-            border-radius: 4px;
-            overflow: hidden;
-            cursor: pointer;
+            flex-shrink: 0;
+            width: 88px; height: 58px;
+            border-radius: 5px; overflow: hidden;
+            cursor: pointer; opacity: .55;
             border: 2px solid transparent;
-            transition: border-color 0.3s ease;
+            transition: opacity .2s, border-color .2s;
         }
+        .thumbnail:hover { opacity: .8; }
+        .thumbnail.active { border-color: #1B7F4F; opacity: 1; }
+        .thumbnail img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-        .thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        /* No-image fallback */
+        .no-image-placeholder {
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 12px; color: #6b7280; background: #f4f6f9;
         }
+        .no-image-placeholder span:first-child { font-size: 3.5rem; }
+        .no-image-placeholder span:last-child  { font-size: 14px; }
 
-        .thumbnail.active {
-            border-color: var(--color-accent);
-        }
-
+        /* ── TWO-COLUMN LAYOUT ── */
         .property-details-row {
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: var(--spacing-xl);
-            margin-bottom: var(--spacing-xl);
+            grid-template-columns: 1fr 340px;
+            gap: 20px;
+            align-items: start;
         }
 
-        .property-info-section {
-            background: var(--color-white);
-            padding: var(--spacing-lg);
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        /* ── SHARED CARD ── */
+        .prop-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 22px 24px;
+            box-shadow: 0 1px 6px rgba(0,0,0,.06);
+            margin-bottom: 16px;
         }
+        .prop-card:last-child { margin-bottom: 0; }
 
+        /* ── LEFT COLUMN ── */
+        .property-info-section { display: flex; flex-direction: column; }
+
+        /* Header card */
         .property-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: var(--spacing-lg);
-            margin-bottom: var(--spacing-lg);
-            padding-bottom: var(--spacing-lg);
-            border-bottom: 1px solid var(--color-border);
+            gap: 16px;
         }
 
+        .property-title-section { flex: 1; min-width: 0; }
+
         .property-title-section h1 {
-            font-size: var(--font-size-2xl);
-            margin-bottom: var(--spacing-sm);
+            font-size: 22px; font-weight: 800;
+            color: #1A2B4A; line-height: 1.3;
+            margin: 0 0 10px;
         }
 
         .property-meta {
-            display: flex;
-            gap: var(--spacing-md);
-            flex-wrap: wrap;
-            margin-bottom: var(--spacing-md);
-            font-size: var(--font-size-sm);
-            color: var(--color-text-muted);
+            display: flex; gap: 10px; flex-wrap: wrap;
+            font-size: 13px; color: #6b7280;
+            margin-bottom: 12px;
         }
+        .property-meta span { display: flex; align-items: center; gap: 4px; }
 
         .property-price-large {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--color-accent);
-            margin-bottom: var(--spacing-md);
+            font-size: 28px; font-weight: 800;
+            color: #1B7F4F; line-height: 1;
+        }
+        .property-price-large small {
+            font-size: 14px; font-weight: 500; color: #9ca3af;
         }
 
         .favorite-btn {
-            padding: var(--spacing-md);
-            border: 2px solid var(--color-border);
-            background: var(--color-white);
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 50px;
-            height: 50px;
-            transition: all 0.3s ease;
+            width: 46px; height: 46px; flex-shrink: 0;
+            border: 2px solid #e5e8ed;
+            background: #fff; border-radius: 50%;
+            cursor: pointer; font-size: 1.3rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all .15s;
         }
+        .favorite-btn:hover { border-color: #1B7F4F; }
+        .favorite-btn.favorited { background: #fee2e2; border-color: #f87171; }
 
-        .favorite-btn:hover {
-            border-color: var(--color-accent);
-        }
-
-        .favorite-btn.favorited {
-            background: var(--color-accent);
-            border-color: var(--color-accent);
-        }
-
+        /* Section headings */
         .section-title {
-            font-size: var(--font-size-lg);
-            font-weight: 600;
-            margin-bottom: var(--spacing-md);
-            margin-top: var(--spacing-lg);
+            font-size: 15px; font-weight: 700;
+            color: #1A2B4A; margin: 0 0 14px;
         }
 
-        .section-title:first-child {
-            margin-top: 0;
-        }
-
+        /* Description */
         .description {
-            line-height: 1.6;
-            color: var(--color-text);
-            margin-bottom: var(--spacing-lg);
+            line-height: 1.75; color: #374151;
+            font-size: 14px; margin: 0;
         }
 
-        .amenities-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .amenity-tag {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            padding: var(--spacing-md);
-            background: var(--color-bg);
-            border-radius: 4px;
-            border: 1px solid var(--color-border);
-            font-size: var(--font-size-sm);
-        }
-
-        .amenity-icon {
-            font-size: 1.2rem;
-        }
-
+        /* Details grid */
         .details-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-lg);
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
         }
 
         .detail-card {
-            background: var(--color-bg);
-            padding: var(--spacing-md);
-            border-radius: 4px;
-            border: 1px solid var(--color-border);
+            background: #f8fafb;
+            padding: 13px 15px;
+            border-radius: 10px;
+            border: 1px solid #e9ecf0;
         }
 
         .detail-label {
-            font-size: var(--font-size-sm);
-            color: var(--color-text-muted);
-            margin-bottom: var(--spacing-xs);
+            font-size: 11px; text-transform: uppercase;
+            letter-spacing: .06em; color: #9ca3af;
+            font-weight: 600; margin-bottom: 4px;
         }
 
         .detail-value {
-            font-size: var(--font-size-lg);
-            font-weight: 600;
-            color: var(--color-text);
+            font-size: 14px; font-weight: 700;
+            color: #1A2B4A;
         }
 
-        .maps-container {
-            background: var(--color-bg);
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: var(--spacing-lg);
-            height: 300px;
+        /* Amenities */
+        .amenities-grid {
+            display: flex; flex-wrap: wrap; gap: 8px;
         }
 
-        .maps-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
+        .amenity-tag {
+            display: flex; align-items: center; gap: 7px;
+            padding: 7px 13px;
+            background: #f0faf5;
+            border: 1px solid #b7e8d0;
+            border-radius: 20px;
+            font-size: 13px; color: #065f46;
         }
 
+        .amenity-icon { font-size: 14px; }
+
+        /* Map */
+        #property-map {
+            width: 100%; height: 300px;
+            border-radius: 10px; overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .map-legend {
+            display: flex; gap: 16px; flex-wrap: wrap;
+            font-size: 12px; color: #6b7280;
+        }
+        .map-legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-marker { width: 10px; height: 10px; border-radius: 50%; }
+        .marker-pwani    { background: #3b82f6; }
+        .marker-property { background: #ef4444; }
+
+        #distance-info {
+            margin-top: 10px; padding: 12px 14px;
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 6px; display: none;
+        }
+        #distance-info p { margin: 0; font-size: 13px; color: #1e40af; }
+
+        /* Reviews */
+        .review-item {
+            padding: 14px; background: #f8fafb;
+            border-radius: 10px; margin-bottom: 10px;
+            border: 1px solid #e9ecf0;
+        }
+        .review-item:last-child { margin-bottom: 0; }
+        .review-header {
+            display: flex; justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .review-author { font-weight: 600; font-size: 13px; color: #1A2B4A; }
+        .review-body   { font-size: 13px; color: #374151; line-height: 1.5; margin-bottom: 6px; }
+        .review-date   { font-size: 11px; color: #9ca3af; }
+
+        /* ── SIDEBAR ── */
         .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-lg);
+            display: flex; flex-direction: column; gap: 14px;
+            position: sticky; top: 80px;
         }
 
         .sidebar-card {
-            background: var(--color-white);
-            padding: var(--spacing-lg);
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            background: #fff;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 1px 6px rgba(0,0,0,.06);
         }
 
+        /* Price in sidebar */
+        .sidebar-price {
+            text-align: center;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #f0f2f5;
+            margin-bottom: 14px;
+        }
+        .sidebar-price-label { font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: .05em; }
+        .sidebar-price-amount {
+            font-size: 26px; font-weight: 800; color: #1B7F4F;
+            margin: 2px 0;
+        }
+        .sidebar-price-period { font-size: 12px; color: #9ca3af; }
+
+        /* Landlord block */
         .landlord-info {
             text-align: center;
-            padding-bottom: var(--spacing-lg);
-            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 14px;
+            border-bottom: 1px solid #f0f2f5;
         }
 
         .landlord-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: var(--color-accent);
-            color: var(--color-white);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 0 auto var(--spacing-md);
+            width: 56px; height: 56px; border-radius: 50%;
+            background: #1B7F4F; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; font-weight: 700;
+            margin: 0 auto 8px;
         }
 
-        .landlord-name {
-            font-weight: 600;
-            margin-bottom: var(--spacing-xs);
+        .landlord-name { font-weight: 700; font-size: 14px; color: #1A2B4A; }
+        .landlord-role { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+
+        .sidebar-connect-note {
+            font-size: 12px; color: #6b7280;
+            text-align: center; line-height: 1.5;
+            margin: 12px 0;
         }
 
-        .landlord-role {
-            font-size: var(--font-size-sm);
-            color: var(--color-text-muted);
-        }
+        .contact-buttons { display: flex; flex-direction: column; gap: 9px; }
 
-        .contact-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-lg);
+        .whatsapp-btn, .inquiry-btn {
+            padding: 13px; border: none; border-radius: 10px;
+            cursor: pointer; font-weight: 700; font-size: 14px;
+            text-decoration: none; text-align: center;
+            transition: background .15s; display: block;
         }
+        .whatsapp-btn { background: #25D366; color: #fff; }
+        .whatsapp-btn:hover { background: #1ea952; }
+        .inquiry-btn  { background: #1B7F4F; color: #fff; }
+        .inquiry-btn:hover  { background: #166c42; }
 
-        .whatsapp-btn,
-        .inquiry-btn {
-            padding: var(--spacing-md);
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-            text-align: center;
-            transition: all 0.3s ease;
+        /* Quick info card */
+        .quick-info-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px solid #f0f2f5;
+            font-size: 13px;
         }
+        .quick-info-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .quick-info-label { color: #9ca3af; }
+        .quick-info-value { font-weight: 600; color: #1A2B4A; }
 
-        .whatsapp-btn {
-            background: #25D366;
-            color: white;
-        }
-
-        .whatsapp-btn:hover {
-            background: #1ea952;
-        }
-
-        .inquiry-btn {
-            background: var(--color-accent);
-            color: white;
-        }
-
-        .inquiry-btn:hover {
-            background: #167a56;
-        }
-
+        /* ── MODAL ── */
         .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
+            display: none; position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,.5);
             z-index: 1000;
-            align-items: center;
-            justify-content: center;
+            align-items: center; justify-content: center;
+            padding: 16px;
         }
-
-        .modal.active {
-            display: flex;
-        }
-
+        .modal.active { display: flex; }
         .modal-content {
-            background: var(--color-white);
-            padding: var(--spacing-xl);
-            border-radius: 8px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
+            background: #fff; padding: 28px;
+            border-radius: 16px;
+            max-width: 500px; width: 100%;
+            max-height: 90vh; overflow-y: auto;
         }
-
         .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-lg);
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 16px;
         }
+        .modal-header h2 { font-size: 17px; color: #1A2B4A; margin: 0; }
+        .close-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #9ca3af; }
 
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--color-text-muted);
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .property-details-row { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+            .main-image-container { height: 300px; }
         }
-
-        .loading {
-            text-align: center;
-            padding: var(--spacing-2xl);
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--color-border);
-            border-top: 4px solid var(--color-accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 1024px) {
-            .property-details-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .gallery-thumbnails {
-                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-            }
-
-            .property-header {
-                flex-direction: column;
-            }
-
-            .amenities-grid,
-            .details-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .property-detail-container {
-                margin: var(--spacing-lg) auto;
-                padding: 0 var(--spacing-md);
-            }
+        @media (max-width: 600px) {
+            .property-detail-container { padding: 12px 12px 40px; }
+            .main-image-container { height: 240px; }
+            .property-title-section h1 { font-size: 18px; }
+            .property-price-large { font-size: 22px; }
+            .prop-card { padding: 16px; }
+            .gallery-btn { width: 36px; height: 36px; font-size: 15px; }
         }
     </style>
 </head>
@@ -444,85 +387,104 @@
             <div class="spinner"></div>
         </div>
 
-        <div id="property-content" style="display: none;">
-            <!-- Gallery -->
+        <div id="property-content" style="display:none;">
+
+            <!-- ── GALLERY ── -->
             <div class="property-gallery">
-                <div class="main-image-container">
+                <div class="main-image-container" id="main-img-wrap">
                     <img id="main-image" src="" alt="Property image" class="main-image">
-                    <div class="gallery-controls">
-                        <button class="gallery-btn" onclick="prevImage()">❮</button>
-                        <button class="gallery-btn" onclick="nextImage()">❯</button>
-                    </div>
+                    <button class="gallery-btn prev" onclick="prevImage()">&#10094;</button>
+                    <button class="gallery-btn next" onclick="nextImage()">&#10095;</button>
+                    <div class="gallery-counter" id="gallery-counter" style="display:none;">1 / 1</div>
                 </div>
                 <div id="thumbnails" class="gallery-thumbnails"></div>
             </div>
 
-            <!-- Main Content -->
+            <!-- ── TWO-COLUMN LAYOUT ── -->
             <div class="property-details-row">
-                <!-- Left Column -->
+
+                <!-- LEFT: main content -->
                 <div class="property-info-section">
-                    <div class="property-header">
-                        <div class="property-title-section">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <h1 id="property-title"></h1>
-                                <span id="verified-badge" style="display: none;" class="badge badge-verified">✅ Verified</span>
+
+                    <!-- Header: title + price + favourite -->
+                    <div class="prop-card">
+                        <div class="property-header">
+                            <div class="property-title-section">
+                                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+                                    <h1 id="property-title"></h1>
+                                    <span id="verified-badge" style="display:none;" class="badge badge-verified">✅ Verified</span>
+                                </div>
+                                <div class="property-meta">
+                                    <span id="property-type"></span>
+                                    <span id="property-location"></span>
+                                </div>
+                                <div class="property-price-large" id="property-price"></div>
                             </div>
-                            <div class="property-meta">
-                                <span id="property-type"></span>
-                                <span id="property-location"></span>
-                            </div>
-                            <div class="property-price-large" id="property-price"></div>
+                            <button class="favorite-btn" id="favorite-btn" onclick="toggleFavorite()" title="Save property">🤍</button>
                         </div>
-                        <button class="favorite-btn" id="favorite-btn" onclick="toggleFavorite()" title="Save property">❤️</button>
                     </div>
 
-                    <!-- Description -->
-                    <div>
-                        <h2 class="section-title">About</h2>
+                    <!-- About -->
+                    <div class="prop-card">
+                        <h2 class="section-title">About this Property</h2>
                         <p class="description" id="property-description"></p>
                     </div>
 
-                    <!-- Details -->
-                    <h2 class="section-title">Property Details</h2>
-                    <div class="details-grid" id="property-details"></div>
+                    <!-- Property Details -->
+                    <div class="prop-card">
+                        <h2 class="section-title">Property Details</h2>
+                        <div class="details-grid" id="property-details"></div>
+                    </div>
 
                     <!-- Amenities -->
-                    <h2 class="section-title">Amenities</h2>
-                    <div class="amenities-grid" id="amenities"></div>
-
-                    <!-- Map -->
-                    <h2 class="section-title">Location</h2>
-                    <div id="property-map"></div>
-                    <div class="map-legend">
-                        <div class="map-legend-item">
-                            <div class="legend-marker marker-pwani"></div>
-                            <span>Kilifi Town</span>
-                        </div>
-                        <div class="map-legend-item">
-                            <div class="legend-marker marker-property"></div>
-                            <span>Property Location</span>
-                        </div>
-                        <div class="map-legend-item">
-                            <span>📍 1km Town Zone</span>
-                        </div>
+                    <div class="prop-card" id="amenities-card">
+                        <h2 class="section-title">Amenities</h2>
+                        <div class="amenities-grid" id="amenities"></div>
                     </div>
-                    <div id="distance-info" style="margin-top: var(--spacing-md); padding: var(--spacing-md); background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 4px; display: none;">
-                        <p style="margin: 0; font-weight: 600; color: #1e40af;"></p>
+
+                    <!-- Location Map -->
+                    <div class="prop-card">
+                        <h2 class="section-title">Location</h2>
+                        <div id="property-map"></div>
+                        <div class="map-legend">
+                            <div class="map-legend-item">
+                                <div class="legend-marker marker-pwani"></div>
+                                <span>Kilifi Town</span>
+                            </div>
+                            <div class="map-legend-item">
+                                <div class="legend-marker marker-property"></div>
+                                <span>Property</span>
+                            </div>
+                        </div>
+                        <div id="distance-info">
+                            <p></p>
+                        </div>
                     </div>
 
                     <!-- Reviews -->
-                    <h2 class="section-title">Reviews</h2>
-                    <div id="reviews-section"></div>
+                    <div class="prop-card">
+                        <h2 class="section-title">Reviews</h2>
+                        <div id="reviews-section"></div>
+                    </div>
                 </div>
 
-                <!-- Sidebar -->
+                <!-- RIGHT: sidebar -->
                 <div class="sidebar">
-                    <!-- Landlord Info -->
+
+                    <!-- Price + Contact -->
                     <div class="sidebar-card">
-                        <div class="landlord-info" id="landlord-info"></div>
-                        <div style="text-align:center;padding:8px 0 4px;">
-                            <p style="font-size:13px;color:#6b7280;margin:0 0 12px;line-height:1.5;">Contact <strong>HomLink Team</strong> — we'll connect you with the landlord.</p>
+                        <div class="sidebar-price">
+                            <div class="sidebar-price-label">Monthly Rent</div>
+                            <div class="sidebar-price-amount" id="sidebar-price">—</div>
+                            <div class="sidebar-price-period">per month</div>
                         </div>
+
+                        <div class="landlord-info" id="landlord-info"></div>
+
+                        <p class="sidebar-connect-note">
+                            Contact <strong>HomLink Team</strong> — we'll connect you with the landlord.
+                        </p>
+
                         <div class="contact-buttons">
                             <a id="whatsapp-btn" class="whatsapp-btn" target="_blank" rel="noopener">
                                 💬 WhatsApp HomLink
@@ -535,11 +497,17 @@
 
                     <!-- Quick Info -->
                     <div class="sidebar-card">
-                        <h3 style="margin-bottom: var(--spacing-md);">Quick Info</h3>
-                        <div style="font-size: var(--font-size-sm); line-height: 1.8; color: var(--color-text-muted);">
-                            <p><strong>Status:</strong> <span id="property-status"></span></p>
-                            <p><strong>Views:</strong> <span id="property-views"></span></p>
-                            <p><strong>Posted:</strong> <span id="property-posted"></span></p>
+                        <div class="quick-info-row">
+                            <span class="quick-info-label">Status</span>
+                            <span class="quick-info-value" id="property-status">—</span>
+                        </div>
+                        <div class="quick-info-row">
+                            <span class="quick-info-label">Views</span>
+                            <span class="quick-info-value" id="property-views">—</span>
+                        </div>
+                        <div class="quick-info-row">
+                            <span class="quick-info-label">Posted</span>
+                            <span class="quick-info-value" id="property-posted">—</span>
                         </div>
                     </div>
                 </div>
@@ -554,30 +522,27 @@
                 <h2>Contact HomLink Team</h2>
                 <button class="close-btn" onclick="closeInquiryModal()">✕</button>
             </div>
-            <p style="font-size:13px;color:#6b7280;margin:0 0 16px;">Leave your details and HomLink will get back to you about this property.</p>
-
+            <p style="font-size:13px;color:#6b7280;margin:0 0 18px;line-height:1.5;">
+                Leave your details and HomLink will get back to you about this property.
+            </p>
             <form id="inquiry-form">
                 <div class="form-group">
                     <label for="tenant-name">Your Name</label>
                     <input type="text" id="tenant-name" name="name" placeholder="Your full name" required>
                 </div>
-
                 <div class="form-group">
                     <label for="tenant-email">Email</label>
                     <input type="email" id="tenant-email" name="email" placeholder="your@email.com" required>
                 </div>
-
                 <div class="form-group">
                     <label for="tenant-phone">Phone Number</label>
                     <input type="tel" id="tenant-phone" name="phone" placeholder="0712345678" required>
                 </div>
-
                 <div class="form-group">
                     <label for="inquiry-message">Message</label>
-                    <textarea id="inquiry-message" name="message" placeholder="Tell the landlord about yourself..." rows="5" required></textarea>
+                    <textarea id="inquiry-message" name="message" placeholder="Tell HomLink what you're looking for..." rows="4" required></textarea>
                 </div>
-
-                <button type="submit" class="btn btn-primary btn-block">Send Inquiry</button>
+                <button type="submit" class="btn btn-primary btn-block">Send Message</button>
             </form>
         </div>
     </div>

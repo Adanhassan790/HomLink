@@ -73,8 +73,10 @@ function renderProperty() {
     // Title and basic info
     document.getElementById('property-title').textContent = currentProperty.title;
     document.getElementById('property-type').textContent = capitalizePropertyType(currentProperty.property_type);
-    document.getElementById('property-location').textContent = `📍 ${currentProperty.town_name || currentProperty.county_name}`;
-    document.getElementById('property-price').textContent = formatCurrency(currentProperty.rent_amount);
+    const areaName = currentProperty.location_area?.name || currentProperty.town_name || currentProperty.county_name || 'Kilifi';
+    document.getElementById('property-location').textContent = `📍 ${areaName}`;
+    document.getElementById('property-price').innerHTML = `KES ${parseInt(currentProperty.rent_amount || 0).toLocaleString()} <small>/month</small>`;
+    document.getElementById('sidebar-price').textContent = `KES ${parseInt(currentProperty.rent_amount || 0).toLocaleString()}`;
     document.getElementById('property-description').textContent = currentProperty.description;
 
     // Show verified badge if applicable
@@ -162,6 +164,18 @@ function renderGallery() {
     const images = currentProperty.images || [];
     const primaryImage = currentProperty.primary_image;
 
+    if (!images.length) {
+        // No photos — show placeholder
+        const wrap = document.getElementById('main-img-wrap');
+        wrap.innerHTML = `
+            <div class="no-image-placeholder">
+                <span>🏠</span>
+                <span>No photos uploaded yet</span>
+            </div>`;
+        document.getElementById('thumbnails').style.display = 'none';
+        return;
+    }
+
     // Set main image to primary if available
     if (primaryImage) {
         currentImageIndex = images.findIndex(img => img.id === primaryImage.id);
@@ -170,13 +184,24 @@ function renderGallery() {
 
     updateMainImage();
 
-    // Render thumbnails
-    const thumbnailsHtml = images.map((img, idx) => `
-        <div class="thumbnail ${idx === currentImageIndex ? 'active' : ''}" onclick="setImageIndex(${idx})">
-            <img src="${img.image}" alt="Property image ${idx + 1}" onerror="this.src='https://via.placeholder.com/80'">
-        </div>
-    `).join('');
-    document.getElementById('thumbnails').innerHTML = thumbnailsHtml;
+    // Render thumbnails (only if more than 1 image)
+    if (images.length > 1) {
+        const thumbnailsHtml = images.map((img, idx) => `
+            <div class="thumbnail ${idx === currentImageIndex ? 'active' : ''}" onclick="setImageIndex(${idx})">
+                <img src="${img.image}" alt="Property image ${idx + 1}">
+            </div>
+        `).join('');
+        document.getElementById('thumbnails').innerHTML = thumbnailsHtml;
+    } else {
+        document.getElementById('thumbnails').style.display = 'none';
+    }
+
+    // Show counter only when multiple images
+    const counter = document.getElementById('gallery-counter');
+    if (images.length > 1) {
+        counter.style.display = 'block';
+        counter.textContent = `1 / ${images.length}`;
+    }
 }
 
 /**
@@ -189,16 +214,16 @@ function renderReviews() {
     let html = '';
 
     if (approvedReviews.length === 0) {
-        html = '<p style="color: var(--color-text-muted);">No reviews yet. Be the first to review!</p>';
+        html = '<p style="font-size:14px;color:#9ca3af;">No reviews yet.</p>';
     } else {
         html = approvedReviews.map(review => `
-            <div style="padding: var(--spacing-md); background: var(--color-bg); border-radius: 4px; margin-bottom: var(--spacing-md);">
-                <div style="display: flex; justify-content: space-between; margin-bottom: var(--spacing-sm);">
-                    <strong>${review.tenant?.first_name || 'Anonymous'}</strong>
+            <div class="review-item">
+                <div class="review-header">
+                    <span class="review-author">${review.tenant?.first_name || 'Anonymous'}</span>
                     <span>${'⭐'.repeat(review.rating)}</span>
                 </div>
-                <p style="color: var(--color-text); margin-bottom: var(--spacing-sm);">${review.comment}</p>
-                <p style="font-size: var(--font-size-sm); color: var(--color-text-muted);">${formatDateShort(review.created_at)}</p>
+                <p class="review-body">${review.comment}</p>
+                <p class="review-date">${formatDateShort(review.created_at)}</p>
             </div>
         `).join('');
     }
@@ -211,10 +236,7 @@ function renderReviews() {
  */
 function updateMainImage() {
     const images = currentProperty.images || [];
-    if (images.length === 0) {
-        document.getElementById('main-image').src = 'https://via.placeholder.com/800x600?text=No+Image';
-        return;
-    }
+    if (!images.length) return;
 
     const image = images[currentImageIndex];
     document.getElementById('main-image').src = image.image;
@@ -223,6 +245,10 @@ function updateMainImage() {
     document.querySelectorAll('.thumbnail').forEach((thumb, idx) => {
         thumb.classList.toggle('active', idx === currentImageIndex);
     });
+
+    // Update counter
+    const counter = document.getElementById('gallery-counter');
+    if (counter) counter.textContent = `${currentImageIndex + 1} / ${images.length}`;
 }
 
 /**
