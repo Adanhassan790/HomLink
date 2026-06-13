@@ -73,7 +73,7 @@ class PropertyListSerializer(serializers.ModelSerializer):
         )
     
     def get_primary_image(self, obj):
-        image = obj.images.filter(is_primary=True).first()
+        image = obj.images.filter(is_primary=True).first() or obj.images.first()
         return PropertyImageSerializer(image).data if image else None
     
     def get_distance_display(self, obj):

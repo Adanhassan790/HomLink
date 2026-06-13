@@ -195,12 +195,13 @@ class PropertyViewSet(viewsets.ModelViewSet):
         category = request.data.get('category', 'ROOM')
         serializer_data = []
         
+        existing_count = property_obj.images.count()
         for idx, image in enumerate(images):
             serializer = PropertyImageSerializer(data={
                 'image': image,
                 'category': category,
                 'order': idx,
-                'is_primary': False
+                'is_primary': (idx == 0 and existing_count == 0)
             })
             if serializer.is_valid():
                 serializer.save(property=property_obj)
