@@ -128,7 +128,14 @@ function renderProperty() {
 
     // WhatsApp button — always contacts HomLink team, not landlord directly
     const waMessage = `Hi HomLink Team, I am interested in the property: "${currentProperty.title}" (ID: ${currentProperty.id}). Please get in touch with me.`;
-    document.getElementById('whatsapp-btn').href = `https://wa.me/254757734299?text=${encodeURIComponent(waMessage)}`;
+    const waLink = `https://wa.me/254757734299?text=${encodeURIComponent(waMessage)}`;
+    document.getElementById('whatsapp-btn').href = waLink;
+
+    // Mobile bottom bar
+    const mobPrice = document.getElementById('mob-price');
+    const mobWa    = document.getElementById('mob-whatsapp');
+    if (mobPrice) mobPrice.textContent = `KES ${parseInt(currentProperty.rent_amount || 0).toLocaleString()}`;
+    if (mobWa)    mobWa.href = waLink;
 
     // Status
     document.getElementById('property-status').textContent = currentProperty.is_available ? 'Available' : 'Occupied';
