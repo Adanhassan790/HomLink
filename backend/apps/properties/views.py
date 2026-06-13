@@ -2,7 +2,10 @@
 Properties app views - Optimized for Kilifi student accommodation
 """
 
+import logging
 import cloudinary.uploader
+
+logger = logging.getLogger(__name__)
 
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
@@ -201,6 +204,8 @@ class PropertyViewSet(viewsets.ModelViewSet):
         existing_count = property_obj.images.count()
         saved = []
 
+        logger.info(f'upload_images: property={property_obj.id}, files={len(images)}, category={category}')
+
         for idx, image in enumerate(images):
             try:
                 result = cloudinary.uploader.upload(
@@ -208,7 +213,9 @@ class PropertyViewSet(viewsets.ModelViewSet):
                     folder='homlink/properties',
                     resource_type='image',
                 )
+                logger.info(f'Cloudinary upload OK: {result.get("secure_url")}')
             except Exception as e:
+                logger.error(f'Cloudinary upload FAILED: {str(e)}')
                 return Response({'error': f'Upload failed: {str(e)}'}, status=status.HTTP_502_BAD_GATEWAY)
 
             prop_image = PropertyImage.objects.create(
@@ -218,6 +225,7 @@ class PropertyViewSet(viewsets.ModelViewSet):
                 order=existing_count + idx,
                 is_primary=(idx == 0 and existing_count == 0),
             )
+            logger.info(f'PropertyImage saved: id={prop_image.id}, url={prop_image.image}')
             saved.append(PropertyImageSerializer(prop_image).data)
 
         return Response(saved, status=status.HTTP_201_CREATED)

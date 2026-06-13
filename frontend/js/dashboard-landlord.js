@@ -6,7 +6,7 @@ let allListings = [];
 let allInquiries = [];
 let currentPromoType = '';
 let isVerified = false;
-const PLACEHOLDER = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="75"><rect width="100%" height="100%" fill="%23e5e7eb"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%239ca3af" font-size="11">No Photo</text></svg>';
+const PLACEHOLDER = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='75'><rect width='100%' height='100%' fill='%23e5e7eb'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-size='11'>No Photo</text></svg>";
 
 async function init() {
     requireRole('landlord');

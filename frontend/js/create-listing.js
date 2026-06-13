@@ -639,13 +639,18 @@ async function uploadAllPhotos(propertyId) {
             fd.append('category', catMap[cat] || 'ROOM');
 
             try {
-                await fetch(`${API}/properties/properties/${propertyId}/upload_images/`, {
+                const res = await fetch(`${API}/properties/properties/${propertyId}/upload_images/`, {
                     method: 'POST',
                     headers: { Authorization: `Bearer ${token}` },
                     body: fd,
                 });
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    console.error(`Image upload failed [${res.status}]:`, errData);
+                    showError(`Photo upload failed (${res.status}): ${errData.error || 'Unknown error'}. Check console.`);
+                }
             } catch (err) {
-                console.error('Photo upload error:', err);
+                console.error('Photo upload network error:', err);
             }
         }
     }
