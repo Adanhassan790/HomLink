@@ -124,15 +124,9 @@ function renderProperty() {
     `;
     document.getElementById('landlord-info').innerHTML = landlordHtml;
 
-    // WhatsApp button
-    const whatsappNumber = currentProperty.whatsapp_number || landlord?.phone_number || '';
-    if (whatsappNumber) {
-        const message = `I am interested in your property: ${currentProperty.title}`;
-        const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^\d]/g, '')}?text=${encodeURIComponent(message)}`;
-        document.getElementById('whatsapp-btn').href = whatsappUrl;
-    } else {
-        document.getElementById('whatsapp-btn').style.display = 'none';
-    }
+    // WhatsApp button — always contacts HomLink team, not landlord directly
+    const waMessage = `Hi HomLink Team, I am interested in the property: "${currentProperty.title}" (ID: ${currentProperty.id}). Please get in touch with me.`;
+    document.getElementById('whatsapp-btn').href = `https://wa.me/254757734299?text=${encodeURIComponent(waMessage)}`;
 
     // Status
     document.getElementById('property-status').textContent = currentProperty.is_available ? 'Available' : 'Occupied';

@@ -287,8 +287,6 @@ export function closeAllModals() {
 // ==================== NAVBAR ====================
 
 export function renderNavbar(user = null) {
-  const navbar = document.getElementById('navbar') || document.body;
-  
   const dashLink = user ? (user.role === 'admin' ? 'dashboard-admin' : user.role === 'landlord' ? 'dashboard-landlord' : 'dashboard-tenant') + '.html' : '#';
 
   const navbarHTML = `
@@ -303,10 +301,21 @@ export function renderNavbar(user = null) {
 
         <div class="navbar-actions">
           ${user ? `
-            <button class="notification-bell" id="notification-bell">
-              🔔
-              <span class="notification-badge" id="notification-count" style="display: none;">0</span>
-            </button>
+            <div class="notif-bell-wrap">
+              <button class="notification-bell" id="notification-bell" title="Notifications">
+                🔔
+                <span class="notification-badge" id="notification-count" style="display:none;">0</span>
+              </button>
+              <div class="notif-panel" id="notif-panel">
+                <div class="notif-panel-header">
+                  <span class="notif-panel-title">Notifications</span>
+                  <button class="notif-mark-all-btn" id="notif-mark-all">Mark all read</button>
+                </div>
+                <div class="notif-list" id="notif-list">
+                  <div class="notif-empty">Loading…</div>
+                </div>
+              </div>
+            </div>
             <div class="user-menu">
               <button class="user-menu-trigger">
                 <div class="user-avatar">${(user.first_name || user.username || '?').charAt(0)}</div>
@@ -353,7 +362,7 @@ export function renderNavbar(user = null) {
       </div>
     </nav>
   `;
-  
+
   const navContainer = document.querySelector('.navbar') || document.createElement('div');
   if (!document.querySelector('.navbar')) {
     navContainer.innerHTML = navbarHTML;
@@ -361,7 +370,7 @@ export function renderNavbar(user = null) {
   } else {
     navContainer.innerHTML = navbarHTML;
   }
-  
+
   // Hamburger toggle
   const hamburger = document.getElementById('nav-hamburger');
   const drawer    = document.getElementById('nav-drawer');
@@ -379,25 +388,42 @@ export function renderNavbar(user = null) {
     });
   }
 
-  // Add event listeners
+  // User dropdown
   const userMenuTrigger = document.querySelector('.user-menu-trigger');
-  const userDropdown = document.getElementById('user-dropdown');
-  
+  const userDropdown    = document.getElementById('user-dropdown');
   if (userMenuTrigger && userDropdown) {
     userMenuTrigger.addEventListener('click', () => {
       userDropdown.classList.toggle('active');
     });
-    
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.user-menu')) {
         userDropdown.classList.remove('active');
       }
     });
   }
-  
-  // Update notification count
+
+  // Notification bell
+  const bell  = document.getElementById('notification-bell');
+  const panel = document.getElementById('notif-panel');
+  if (bell && panel) {
+    bell.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpening = !panel.classList.contains('open');
+      panel.classList.toggle('open');
+      if (isOpening) _loadNotifications();
+    });
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.notif-bell-wrap')) {
+        panel.classList.remove('open');
+      }
+    });
+    const markAllBtn = document.getElementById('notif-mark-all');
+    if (markAllBtn) markAllBtn.addEventListener('click', _markAllRead);
+  }
+
   if (user) {
     updateNotificationCount();
+    _fetchUnreadCount();
   }
 }
 
@@ -462,18 +488,120 @@ export function renderFooter() {
 }
 
 export function updateNotificationCount() {
-  // This will be called from the API module when notifications are fetched
   const count = getLocalStorage('unread_notifications', 0);
   const badge = document.getElementById('notification-count');
   if (badge) {
     if (count > 0) {
-      badge.textContent = count;
+      badge.textContent = count > 99 ? '99+' : count;
       badge.style.display = 'flex';
     } else {
       badge.style.display = 'none';
     }
   }
 }
+
+// ── Notification panel internals ──────────────────────────
+
+function _notifTimeAgo(dateString) {
+  const seconds = Math.floor((new Date() - new Date(dateString)) / 1000);
+  if (seconds < 60)  return 'just now';
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  return `${Math.floor(seconds / 86400)}d ago`;
+}
+
+async function _fetchUnreadCount() {
+  const token = getLocalStorage('access_token');
+  if (!token) return;
+  try {
+    const API = `${window.location.protocol}//${window.location.host}/api`;
+    const res = await fetch(`${API}/notifications/unread_count/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setLocalStorage('unread_notifications', data.unread_count || 0);
+      updateNotificationCount();
+    }
+  } catch {}
+}
+
+async function _loadNotifications() {
+  const list = document.getElementById('notif-list');
+  if (!list) return;
+  list.innerHTML = '<div class="notif-empty">Loading…</div>';
+
+  const token = getLocalStorage('access_token');
+  if (!token) { list.innerHTML = '<div class="notif-empty">Please log in</div>'; return; }
+
+  try {
+    const API = `${window.location.protocol}//${window.location.host}/api`;
+    const res = await fetch(`${API}/notifications/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error('Failed');
+    const data  = await res.json();
+    const items = data.results || data;
+
+    if (!items.length) {
+      list.innerHTML = '<div class="notif-empty">No notifications yet</div>';
+      return;
+    }
+
+    list.innerHTML = items.map(n => `
+      <div class="notif-item ${n.is_read ? 'notif-read' : 'notif-unread'}" id="notif-item-${n.id}">
+        <div class="notif-msg">${n.message}</div>
+        <div class="notif-footer">
+          <span class="notif-time">${_notifTimeAgo(n.created_at)}</span>
+          ${!n.is_read
+            ? `<button class="notif-read-btn" onclick="window._markNotifRead(${n.id})">✓ Mark read</button>`
+            : `<span class="notif-done">✓ Read</span>`}
+        </div>
+      </div>`).join('');
+
+    const unread = items.filter(n => !n.is_read).length;
+    setLocalStorage('unread_notifications', unread);
+    updateNotificationCount();
+  } catch {
+    list.innerHTML = '<div class="notif-empty">Could not load notifications</div>';
+  }
+}
+
+async function _markAllRead() {
+  const token = getLocalStorage('access_token');
+  if (!token) return;
+  try {
+    const API = `${window.location.protocol}//${window.location.host}/api`;
+    await fetch(`${API}/notifications/mark_all_as_read/`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setLocalStorage('unread_notifications', 0);
+    updateNotificationCount();
+    _loadNotifications();
+  } catch {}
+}
+
+window._markNotifRead = async function(id) {
+  const token = getLocalStorage('access_token');
+  if (!token) return;
+  try {
+    const API = `${window.location.protocol}//${window.location.host}/api`;
+    await fetch(`${API}/notifications/${id}/mark_as_read/`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const item = document.getElementById(`notif-item-${id}`);
+    if (item) {
+      item.classList.replace('notif-unread', 'notif-read');
+      const btn = item.querySelector('.notif-read-btn');
+      if (btn) btn.outerHTML = '<span class="notif-done">✓ Read</span>';
+    }
+    const cur = getLocalStorage('unread_notifications', 0);
+    setLocalStorage('unread_notifications', Math.max(0, cur - 1));
+    updateNotificationCount();
+  } catch {}
+};
 
 // ==================== PAGINATION ====================
 
@@ -527,6 +655,62 @@ export function stopLoading(element) {
 // ==================== INITIALIZATION ====================
 
 export async function initializeApp() {
+  // Notification panel CSS
+  if (!document.getElementById('notif-styles')) {
+    const ns = document.createElement('style');
+    ns.id = 'notif-styles';
+    ns.innerHTML = `
+      .notif-bell-wrap { position: relative; }
+      .notif-panel {
+        display: none;
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        width: 320px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+        border: 1px solid #e5e8ed;
+        z-index: 10000;
+        overflow: hidden;
+      }
+      .notif-panel.open { display: block; }
+      .notif-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-bottom: 1px solid #e5e8ed;
+      }
+      .notif-panel-title { font-size: 14px; font-weight: 700; color: #1A2B4A; }
+      .notif-mark-all-btn {
+        background: none; border: none;
+        color: #1B7F4F; font-size: 12px; font-weight: 600; cursor: pointer;
+      }
+      .notif-mark-all-btn:hover { text-decoration: underline; }
+      .notif-list { max-height: 360px; overflow-y: auto; }
+      .notif-item { padding: 12px 16px; border-bottom: 1px solid #f0f2f5; }
+      .notif-item:last-child { border-bottom: none; }
+      .notif-unread { background: #f0fdf4; }
+      .notif-read   { background: #fff; }
+      .notif-msg { font-size: 13px; color: #374151; line-height: 1.5; margin-bottom: 5px; }
+      .notif-footer { display: flex; align-items: center; justify-content: space-between; }
+      .notif-time { font-size: 11px; color: #9ca3af; }
+      .notif-read-btn {
+        background: none; border: none;
+        color: #1B7F4F; font-size: 11px; font-weight: 600;
+        cursor: pointer; padding: 2px 6px; border-radius: 4px;
+      }
+      .notif-read-btn:hover { background: #f0fdf4; }
+      .notif-done { font-size: 11px; color: #1B7F4F; }
+      .notif-empty { padding: 24px 16px; text-align: center; font-size: 13px; color: #9ca3af; }
+      @media (max-width: 480px) {
+        .notif-panel { width: calc(100vw - 32px); right: -56px; }
+      }
+    `;
+    document.head.appendChild(ns);
+  }
+
   // Add toast CSS if not present
   if (!document.getElementById('toast-styles')) {
     const style = document.createElement('style');

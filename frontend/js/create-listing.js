@@ -115,15 +115,33 @@ async function init() {
 }
 
 // ── API data ──────────────────────────────────────────────
+const KILIFI_AREA_NAMES = [
+    'Bofa','Charo wa Mae','Kaya','Kibaoni','Kisumu Ndogo',
+    'Kiwandani','Kwa Mwango','Mabirikani','Makao','Marembo',
+    'Misufini','Mnarani','Mtaani','Zimbabwe',
+];
+
 async function loadAreas() {
-    const res = await fetch(`${API}/properties/areas/`);
-    const data = await res.json();
-    areasData = data.results || data;
     const sel = document.getElementById('location_area');
+    if (!sel) return;
     sel.innerHTML = '<option value="">Select area…</option>';
-    areasData.forEach(a => {
+    try {
+        const res  = await fetch(`${API}/properties/areas/`);
+        const data = await res.json();
+        areasData = data.results || data;
+        if (areasData.length) {
+            areasData.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.id; opt.textContent = a.name;
+                sel.appendChild(opt);
+            });
+            return;
+        }
+    } catch {}
+    // Fallback when API returns empty (database not yet seeded)
+    KILIFI_AREA_NAMES.forEach(name => {
         const opt = document.createElement('option');
-        opt.value = a.id; opt.textContent = a.name;
+        opt.value = name; opt.textContent = name;
         sel.appendChild(opt);
     });
 }

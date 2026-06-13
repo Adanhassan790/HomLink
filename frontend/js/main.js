@@ -385,19 +385,34 @@ function adminHomeHTML(name, pendingProps, totalUsers, unverifiedLandlords) {
 }
 
 // ── Shared helpers ────────────────────────────────────────
+const KILIFI_AREA_NAMES = [
+    'Bofa','Charo wa Mae','Kaya','Kibaoni','Kisumu Ndogo',
+    'Kiwandani','Kwa Mwango','Mabirikani','Makao','Marembo',
+    'Misufini','Mnarani','Mtaani','Zimbabwe',
+];
+
 async function loadAreas() {
+    const sel = document.getElementById('area-filter');
+    if (!sel) return;
     try {
         const res  = await fetch(`${API}/properties/areas/`);
         const data = await res.json();
         const areas = data.results || data;
-        const sel = document.getElementById('area-filter');
-        if (!sel) return;
-        areas.forEach(a => {
-            const opt = document.createElement('option');
-            opt.value = a.id; opt.textContent = a.name;
-            sel.appendChild(opt);
-        });
+        if (areas.length) {
+            areas.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.id; opt.textContent = a.name;
+                sel.appendChild(opt);
+            });
+            return;
+        }
     } catch {}
+    // Fallback: use hardcoded Kilifi areas (value = name, works with name-based filter)
+    KILIFI_AREA_NAMES.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name; opt.textContent = name;
+        sel.appendChild(opt);
+    });
 }
 
 async function loadSection(containerId, url) {

@@ -1,4 +1,4 @@
-import { renderNavbar } from './utils.js';
+import { renderNavbar, getLocalStorage } from './utils.js';
 import { getCurrentUser, setCurrentUser, handleLogout } from './auth.js';
 
 const API = `${window.location.protocol}//${window.location.host}/api`;
@@ -18,7 +18,7 @@ async function init() {
     renderNavbar(stored);
 
     try {
-        const token = localStorage.getItem('access_token');
+        const token = getLocalStorage('access_token');
         const res = await fetch(`${API}/auth/me/`, {
             headers: { Authorization: `Bearer ${token}` },
         });
@@ -171,7 +171,7 @@ async function saveBasicInfo() {
     };
 
     try {
-        const token = localStorage.getItem('access_token');
+        const token = getLocalStorage('access_token');
         const res = await fetch(`${API}/auth/me/`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -229,7 +229,7 @@ window.saveTenantProfile = saveTenantProfile;
 
 async function saveProfile(body, alertId) {
     try {
-        const token = localStorage.getItem('access_token');
+        const token = getLocalStorage('access_token');
         const res = await fetch(`${API}/auth/profile/`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },

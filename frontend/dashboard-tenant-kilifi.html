@@ -1134,11 +1134,9 @@
                                 </div>
                             </div>
                             <div class="inquiry-footer">
-                                ${landlordPhone ? `
-                                    <a href="https://wa.me/${landlordPhone.replace(/\D/g, '')}" target="_blank" class="btn btn-primary btn-small">
-                                        Message on WhatsApp
-                                    </a>
-                                ` : '<div class="btn btn-secondary btn-small" style="opacity: 0.5;">Contact unavailable</div>'}
+                                <a href="https://wa.me/254757734299?text=${encodeURIComponent(`Hi HomLink Team, I have a follow-up about the property: ${prop.title || prop.id}`)}" target="_blank" rel="noopener" class="btn btn-primary btn-small">
+                                    📱 Contact HomLink
+                                </a>
                                 <a href="property.html?id=${prop.id}" class="btn btn-secondary btn-small">View Property</a>
                             </div>
                         </div>

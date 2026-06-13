@@ -148,7 +148,7 @@ function buildInquiryItem(inq) {
             </div>
             <div class="inq-msg">${inq.message}</div>
             <div style="display:flex;gap:var(--spacing-sm);align-items:center;flex-wrap:wrap;">
-                ${digits ? `<a href="https://wa.me/${digits}" target="_blank" class="btn btn-sm btn-primary">📱 WhatsApp Landlord</a>` : ''}
+                <a href="https://wa.me/254757734299?text=${encodeURIComponent(`Hi HomLink Team, I have an inquiry about: ${prop.title || 'a property'}`)}" target="_blank" rel="noopener" class="btn btn-sm btn-primary">📱 Contact HomLink</a>
                 ${propId ? `<a href="property.html?id=${propId}" class="btn btn-sm btn-secondary">View Listing</a>` : ''}
                 <span class="status-badge status-${inq.status||'pending'}">${inq.status||'pending'}</span>
             </div>
