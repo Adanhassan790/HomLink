@@ -104,12 +104,13 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files — use Cloudinary when credentials are provided, local storage otherwise
+_CLOUDINARY_CLOUD_NAME = config('CLOUDINARY_CLOUD_NAME', default='')
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
+    'CLOUD_NAME': _CLOUDINARY_CLOUD_NAME,
     'API_KEY': config('CLOUDINARY_API_KEY', default=''),
     'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
 }
-if config('CLOUDINARY_URL', default=''):
+if _CLOUDINARY_CLOUD_NAME:
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 else:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
@@ -162,10 +163,10 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 # Cloudinary Configuration
-if config('CLOUDINARY_URL', default=''):
+if _CLOUDINARY_CLOUD_NAME:
     import cloudinary
     cloudinary.config(
-        cloud_name=config('CLOUDINARY_CLOUD_NAME'),
+        cloud_name=_CLOUDINARY_CLOUD_NAME,
         api_key=config('CLOUDINARY_API_KEY'),
         api_secret=config('CLOUDINARY_API_SECRET')
     )
