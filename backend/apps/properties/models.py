@@ -240,7 +240,7 @@ class PropertyImage(models.Model):
     ]
     
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='properties/images/')
+    image = models.URLField(max_length=500)
     category = models.CharField(max_length=20, choices=IMAGE_CATEGORY_CHOICES, default='ROOM')
     is_primary = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)

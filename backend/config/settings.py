@@ -103,19 +103,12 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files — use Cloudinary when credentials are provided, local storage otherwise
+# Media files (local fallback — property images go directly to Cloudinary via SDK)
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+
 _CLOUDINARY_CLOUD_NAME = config('CLOUDINARY_CLOUD_NAME', default='')
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': _CLOUDINARY_CLOUD_NAME,
-    'API_KEY': config('CLOUDINARY_API_KEY', default=''),
-    'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
-}
-if _CLOUDINARY_CLOUD_NAME:
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-else:
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    MEDIA_ROOT = BASE_DIR / 'media'
-    MEDIA_URL = '/media/'
 
 # Authentication
 AUTH_USER_MODEL = 'users.User'

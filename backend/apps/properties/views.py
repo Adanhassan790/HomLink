@@ -2,6 +2,8 @@
 Properties app views - Optimized for Kilifi student accommodation
 """
 
+import cloudinary.uploader
+
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -182,34 +184,43 @@ class PropertyViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'], parser_classes=(MultiPartParser, FormParser))
     def upload_images(self, request, pk=None):
-        """Upload multiple images with categories"""
+        """Upload images directly to Cloudinary and store the returned URL"""
         property_obj = self.get_object()
-        
+
         if property_obj.landlord != request.user and not request.user.is_staff:
             return Response(
                 {'error': 'You can only upload images to your own properties'},
                 status=status.HTTP_403_FORBIDDEN
             )
-        
+
         images = request.FILES.getlist('images')
+        if not images:
+            return Response({'error': 'No images provided'}, status=status.HTTP_400_BAD_REQUEST)
+
         category = request.data.get('category', 'ROOM')
-        serializer_data = []
-        
         existing_count = property_obj.images.count()
+        saved = []
+
         for idx, image in enumerate(images):
-            serializer = PropertyImageSerializer(data={
-                'image': image,
-                'category': category,
-                'order': idx,
-                'is_primary': (idx == 0 and existing_count == 0)
-            })
-            if serializer.is_valid():
-                serializer.save(property=property_obj)
-                serializer_data.append(serializer.data)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response(serializer_data, status=status.HTTP_201_CREATED)
+            try:
+                result = cloudinary.uploader.upload(
+                    image,
+                    folder='homlink/properties',
+                    resource_type='image',
+                )
+            except Exception as e:
+                return Response({'error': f'Upload failed: {str(e)}'}, status=status.HTTP_502_BAD_GATEWAY)
+
+            prop_image = PropertyImage.objects.create(
+                property=property_obj,
+                image=result['secure_url'],
+                category=category,
+                order=existing_count + idx,
+                is_primary=(idx == 0 and existing_count == 0),
+            )
+            saved.append(PropertyImageSerializer(prop_image).data)
+
+        return Response(saved, status=status.HTTP_201_CREATED)
     
     @action(detail=True, methods=['delete'], url_path='images/(?P<image_id>[^/.]+)')
     def delete_image(self, request, pk=None, image_id=None):
