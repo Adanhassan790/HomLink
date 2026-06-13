@@ -403,15 +403,7 @@ function validateStep(step) {
         errs.push(['amenities', 'Please select at least one amenity']);
     }
 
-    if (step === 3 && !editMode) {
-        const photos = Object.values(uploadedPhotos.room || {}).flat();
-        if (!photos.length) errs.push(['room-photos', 'Please upload at least one room photo']);
-    }
-
-    if (step === 5 && !editMode) {
-        const photos = Object.values(uploadedPhotos.building || {}).flat();
-        if (!photos.length) errs.push(['building-photos', 'Please upload at least one building photo']);
-    }
+    // Photos are optional — landlords can add them later via edit
 
     if (errs.length) {
         errs.forEach(([field, msg]) => {
