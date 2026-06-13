@@ -146,10 +146,28 @@ async function loadAreas() {
     });
 }
 
+const FALLBACK_AMENITIES = [
+    { id: 'wifi', name: 'wifi' }, { id: 'parking', name: 'parking' },
+    { id: 'water', name: 'water' }, { id: 'security', name: 'security' },
+    { id: 'electricity', name: 'electricity' }, { id: 'balcony', name: 'balcony' },
+    { id: 'furnished', name: 'furnished' }, { id: 'kitchen', name: 'kitchen' },
+    { id: 'laundry', name: 'laundry' }, { id: 'study_space', name: 'study_space' },
+];
+
 async function loadAmenities() {
-    const res = await fetch(`${API}/properties/amenities/`);
-    const data = await res.json();
-    amenitiesData = data.results || data;
+    try {
+        const res = await fetch(`${API}/properties/amenities/`);
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+        const fetched = data.results || data;
+        if (fetched.length) {
+            amenitiesData = fetched;
+        } else {
+            amenitiesData = FALLBACK_AMENITIES;
+        }
+    } catch {
+        amenitiesData = FALLBACK_AMENITIES;
+    }
 
     const grid = document.getElementById('amenity-grid');
     grid.innerHTML = '';
@@ -157,7 +175,7 @@ async function loadAmenities() {
         const icon = AMENITY_ICONS[a.name] || '✅';
         grid.insertAdjacentHTML('beforeend', `
             <div class="amenity-item">
-                <input type="checkbox" id="am_${a.id}" value="${a.id}" onchange="toggleAmenity(${a.id}, this.checked)">
+                <input type="checkbox" id="am_${a.id}" value="${a.id}" onchange="toggleAmenity('${a.id}', this.checked)">
                 <label for="am_${a.id}" class="amenity-label">
                     <span class="amenity-icon">${icon}</span>
                     <span class="amenity-name">${a.name.replace(/_/g, ' ')}</span>
@@ -436,7 +454,8 @@ function buildPreview() {
     }
 
     const amenityContainer = document.getElementById('preview-amenities');
-    const selectedData = amenitiesData.filter(a => selectedAmenities.includes(a.id));
+    const selectedSet = new Set(selectedAmenities.map(String));
+    const selectedData = amenitiesData.filter(a => selectedSet.has(String(a.id)));
     amenityContainer.innerHTML = selectedData.map(a =>
         `<span class="preview-amenity">${AMENITY_ICONS[a.name]||'✅'} ${a.name.replace(/_/g,' ')}</span>`
     ).join('');
@@ -576,6 +595,10 @@ window.submitListing = async () => {
 async function createPropertyDraft() {
     try {
         const token = getLocalStorage('access_token');
+        const areaRaw    = document.getElementById('location_area').value;
+        const areaId     = parseInt(areaRaw, 10);
+        const amenityIds = selectedAmenities.map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+
         const payload = {
             title:            document.getElementById('title').value.trim(),
             description:      document.getElementById('description').value.trim(),
@@ -583,13 +606,13 @@ async function createPropertyDraft() {
             rent_amount:      parseFloat(document.getElementById('rent_amount').value),
             security_deposit: parseFloat(document.getElementById('security_deposit').value || 0),
             property_type:    document.getElementById('property_type').value,
-            location_area:    parseInt(document.getElementById('location_area').value),
+            location_area:    !isNaN(areaId) ? areaId : null,
             estate:           document.getElementById('estate').value.trim(),
             latitude:         document.getElementById('latitude').value  ? parseFloat(document.getElementById('latitude').value)  : null,
             longitude:        document.getElementById('longitude').value ? parseFloat(document.getElementById('longitude').value) : null,
             whatsapp_number:  document.getElementById('whatsapp_number').value.trim(),
             is_available:     true,
-            amenity_ids:      selectedAmenities,
+            amenity_ids:      amenityIds,
         };
 
         const res = await fetch(`${API}/properties/properties/`, {
@@ -735,6 +758,10 @@ function showExistingImages(images) {
 async function updatePropertyDraft(id) {
     try {
         const token = getLocalStorage('access_token');
+        const areaRaw    = document.getElementById('location_area').value;
+        const areaId     = parseInt(areaRaw, 10);
+        const amenityIds = selectedAmenities.map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+
         const payload = {
             title:            document.getElementById('title').value.trim(),
             description:      document.getElementById('description').value.trim(),
@@ -742,13 +769,13 @@ async function updatePropertyDraft(id) {
             rent_amount:      parseFloat(document.getElementById('rent_amount').value),
             security_deposit: parseFloat(document.getElementById('security_deposit').value || 0),
             property_type:    document.getElementById('property_type').value,
-            location_area:    parseInt(document.getElementById('location_area').value),
+            location_area:    !isNaN(areaId) ? areaId : null,
             estate:           document.getElementById('estate').value.trim(),
             latitude:         document.getElementById('latitude').value  ? parseFloat(document.getElementById('latitude').value)  : null,
             longitude:        document.getElementById('longitude').value ? parseFloat(document.getElementById('longitude').value) : null,
             whatsapp_number:  document.getElementById('whatsapp_number').value.trim(),
             is_available:     true,
-            amenity_ids:      selectedAmenities,
+            amenity_ids:      amenityIds,
         };
 
         const res = await fetch(`${API}/properties/properties/${id}/`, {
