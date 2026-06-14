@@ -191,6 +191,7 @@ function renderProperty() {
  */
 function renderVideos() {
     const videos = currentProperty.videos || [];
+    console.log('[HomLink] Videos from API:', videos);
     const wrap = document.getElementById('videos-in-gallery');
     if (!wrap) return;
 

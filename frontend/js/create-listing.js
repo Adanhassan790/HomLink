@@ -568,13 +568,29 @@ window.submitListing = async () => {
 
         if (createdPropertyId) {
             await uploadAllPhotos(createdPropertyId);
-            await uploadAllVideos(createdPropertyId);
+            const videoResults = await uploadAllVideos(createdPropertyId);
+
             if (editMode) {
                 const h2 = document.querySelector('#step-10 .success-card h2');
                 const p  = document.querySelector('#step-10 .success-card p');
                 if (h2) h2.textContent = 'Listing Updated!';
                 if (p)  p.textContent  = 'Your listing has been updated. Changes will be reviewed by HomLink and reflected shortly.';
             }
+
+            // Show a persistent warning on the success card if any video failed
+            if (videoResults && videoResults.failed.length > 0) {
+                const successCard = document.querySelector('#step-10 .success-card');
+                if (successCard) {
+                    const warn = document.createElement('div');
+                    warn.style.cssText = 'background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:12px;margin-top:16px;font-size:.9em;color:#92400e;';
+                    warn.innerHTML = `⚠️ <strong>${videoResults.failed.length} video(s) failed to upload</strong>: ${videoResults.errors.join(', ')}<br>
+                        <span>Please go back and re-upload the video(s), or contact HomLink support.</span>`;
+                    successCard.appendChild(warn);
+                }
+            } else if (videoResults && videoResults.ok > 0) {
+                console.log(`${videoResults.ok} video(s) uploaded successfully.`);
+            }
+
             showStep(9);
         }
     } catch {
@@ -630,6 +646,8 @@ async function createPropertyDraft() {
 
 async function uploadAllVideos(propertyId) {
     const token = getLocalStorage('access_token');
+    const results = { ok: 0, failed: [], errors: [] };
+
     for (const [slot, file] of Object.entries(uploadedVideos)) {
         if (!file) continue;
         const fd = new FormData();
@@ -642,15 +660,23 @@ async function uploadAllVideos(propertyId) {
                 headers: { Authorization: `Bearer ${token}` },
                 body: fd,
             });
-            if (!res.ok) {
+            if (res.ok) {
+                results.ok++;
+                console.log(`Video [${slot}] uploaded OK`);
+            } else {
                 const errData = await res.json().catch(() => ({}));
-                console.error(`Video upload failed [${res.status}]:`, errData);
-                showError(`Video upload failed: ${errData.error || 'Unknown error'}`);
+                const msg = errData.error || `HTTP ${res.status}`;
+                console.error(`Video upload failed [${slot}]:`, msg, errData);
+                results.failed.push(slot);
+                results.errors.push(msg);
             }
         } catch (err) {
             console.error('Video upload network error:', err);
+            results.failed.push(slot);
+            results.errors.push(err.message);
         }
     }
+    return results;
 }
 
 async function uploadAllPhotos(propertyId) {
