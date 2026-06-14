@@ -126,8 +126,27 @@ function renderProperty() {
     `;
     document.getElementById('landlord-info').innerHTML = landlordHtml;
 
-    // WhatsApp button — always contacts HomLink team, not landlord directly
-    const waMessage = `Hi HomLink Team, I am interested in the property: "${currentProperty.title}" (ID: ${currentProperty.id}). Please get in touch with me.`;
+    // WhatsApp button — descriptive message so HomLink team knows exactly which property
+    const waArea    = currentProperty.location_area?.name || currentProperty.town_name || 'Kilifi';
+    const waEstate  = currentProperty.estate ? `, ${currentProperty.estate}` : '';
+    const waType    = capitalizePropertyType(currentProperty.property_type);
+    const waRent    = parseInt(currentProperty.rent_amount || 0).toLocaleString();
+    const waDeposit = parseInt(currentProperty.security_deposit || 0).toLocaleString();
+    const waAmenities = (currentProperty.amenities || []).slice(0, 4).map(a => a.name).join(', ');
+    const waMessage = [
+        `Hi HomLink Team,`,
+        ``,
+        `I am interested in the following property:`,
+        ``,
+        `🏠 *${currentProperty.title}*`,
+        `📍 Location: ${waArea}${waEstate}`,
+        `🛏 Type: ${waType}`,
+        `💰 Rent: KES ${waRent}/month`,
+        `💳 Deposit: KES ${waDeposit}`,
+        waAmenities ? `✅ Amenities: ${waAmenities}` : '',
+        ``,
+        `Please connect me with the landlord. Thank you!`
+    ].filter(line => line !== null && line !== undefined && !(line === '' && false)).join('\n');
     const waLink = `https://wa.me/254757734299?text=${encodeURIComponent(waMessage)}`;
     document.getElementById('whatsapp-btn').href = waLink;
 
@@ -144,6 +163,9 @@ function renderProperty() {
 
     // Gallery
     renderGallery();
+
+    // Videos
+    renderVideos();
 
     // Map - Leaflet.js
     if (currentProperty.latitude && currentProperty.longitude) {
@@ -162,6 +184,35 @@ function renderProperty() {
 
     // Reviews
     renderReviews();
+}
+
+/**
+ * Render video tours section — shown only when videos exist
+ */
+function renderVideos() {
+    const videos = currentProperty.videos || [];
+    const card = document.getElementById('videos-card');
+    const container = document.getElementById('videos-section');
+    if (!card || !container) return;
+
+    if (!videos.length) {
+        card.style.display = 'none';
+        return;
+    }
+
+    card.style.display = 'block';
+    container.innerHTML = videos.map(v => `
+        <div style="margin-bottom:20px;">
+            <video controls preload="metadata"
+                style="width:100%;border-radius:10px;background:#000;max-height:400px;display:block;">
+                <source src="${v.video}" type="video/mp4">
+                Your browser does not support video playback.
+            </video>
+            ${v.title ? `<p style="margin:8px 0 2px;font-weight:600;font-size:14px;color:#1A2B4A;">${v.title}</p>` : ''}
+            ${v.description ? `<p style="margin:0;font-size:13px;color:#718096;">${v.description}</p>` : ''}
+            ${v.duration_seconds ? `<p style="margin:4px 0 0;font-size:12px;color:#9ca3af;">⏱ ${v.duration_seconds}s</p>` : ''}
+        </div>
+    `).join('');
 }
 
 /**
