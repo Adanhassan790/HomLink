@@ -187,32 +187,34 @@ function renderProperty() {
 }
 
 /**
- * Render video tours section — shown only when videos exist
+ * Render videos directly below the photo gallery
  */
 function renderVideos() {
     const videos = currentProperty.videos || [];
-    const card = document.getElementById('videos-card');
-    const container = document.getElementById('videos-section');
-    if (!card || !container) return;
+    const wrap = document.getElementById('videos-in-gallery');
+    if (!wrap) return;
 
     if (!videos.length) {
-        card.style.display = 'none';
+        wrap.style.display = 'none';
         return;
     }
 
-    card.style.display = 'block';
-    container.innerHTML = videos.map(v => `
-        <div style="margin-bottom:20px;">
-            <video controls preload="metadata"
-                style="width:100%;border-radius:10px;background:#000;max-height:400px;display:block;">
+    const items = videos.map(v => `
+        <div class="video-gallery-item">
+            <video controls preload="metadata">
                 <source src="${v.video}" type="video/mp4">
                 Your browser does not support video playback.
             </video>
-            ${v.title ? `<p style="margin:8px 0 2px;font-weight:600;font-size:14px;color:#1A2B4A;">${v.title}</p>` : ''}
-            ${v.description ? `<p style="margin:0;font-size:13px;color:#718096;">${v.description}</p>` : ''}
-            ${v.duration_seconds ? `<p style="margin:4px 0 0;font-size:12px;color:#9ca3af;">⏱ ${v.duration_seconds}s</p>` : ''}
+            ${v.title ? `<p><strong>${v.title}</strong></p>` : ''}
+            ${v.description ? `<p>${v.description}</p>` : ''}
         </div>
     `).join('');
+
+    wrap.style.display = 'block';
+    wrap.innerHTML = `
+        <p class="video-gallery-label">🎬 Video Tours (${videos.length})</p>
+        <div class="video-gallery-scroll">${items}</div>
+    `;
 }
 
 /**

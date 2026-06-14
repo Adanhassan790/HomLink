@@ -179,6 +179,31 @@
         }
         .lb-img:hover img { transform: scale(1.04); }
 
+        /* ── VIDEOS IN GALLERY ── */
+        .video-gallery-label {
+            font-size: 13px; font-weight: 700; color: #1A2B4A;
+            margin: 0 0 8px; display: flex; align-items: center; gap: 6px;
+        }
+        .video-gallery-scroll {
+            display: flex; gap: 12px; overflow-x: auto;
+            padding-bottom: 6px; scroll-snap-type: x mandatory;
+        }
+        .video-gallery-scroll::-webkit-scrollbar { height: 4px; }
+        .video-gallery-scroll::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 4px; }
+        .video-gallery-item {
+            flex: 0 0 auto; width: 100%; max-width: 520px;
+            scroll-snap-align: start;
+        }
+        .video-gallery-item video {
+            width: 100%; border-radius: 10px; background: #000;
+            max-height: 300px; display: block;
+        }
+        .video-gallery-item p { margin: 5px 0 0; font-size: 13px; color: #4B5563; }
+        @media (max-width: 600px) {
+            .video-gallery-item { max-width: 90vw; }
+            .video-gallery-item video { max-height: 220px; }
+        }
+
         /* ── TWO-COLUMN LAYOUT ── */
         .property-details-row {
             display: grid;
@@ -538,6 +563,9 @@
                     <div id="thumbnails" class="gallery-thumbnails"></div>
                 </div>
 
+                <!-- Videos: shown directly below photos when videos exist -->
+                <div id="videos-in-gallery" style="display:none; margin-top:10px;"></div>
+
             </div>
 
             <!-- ── TWO-COLUMN LAYOUT ── -->
@@ -580,12 +608,6 @@
                     <div class="prop-card" id="amenities-card">
                         <h2 class="section-title">Amenities</h2>
                         <div class="amenities-grid" id="amenities"></div>
-                    </div>
-
-                    <!-- Video Tours -->
-                    <div class="prop-card" id="videos-card" style="display:none;">
-                        <h2 class="section-title">🎬 Video Tours</h2>
-                        <div id="videos-section"></div>
                     </div>
 
                     <!-- Location Map -->
