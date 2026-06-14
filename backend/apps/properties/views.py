@@ -247,28 +247,45 @@ class PropertyViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'], parser_classes=(MultiPartParser, FormParser))
     def add_video(self, request, pk=None):
-        """Add a video tour to property"""
+        """Upload video directly to Cloudinary and store the returned URL"""
         property_obj = self.get_object()
-        
+
         if property_obj.landlord != request.user and not request.user.is_staff:
             return Response(
                 {'error': 'You can only add videos to your own properties'},
                 status=status.HTTP_403_FORBIDDEN
             )
-        
-        # Check video limit
-        video_count = property_obj.videos.count()
-        if video_count >= 3:
+
+        if property_obj.videos.count() >= 3:
             return Response(
                 {'error': 'Maximum 3 videos allowed per property'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
-        serializer = PropertyVideoSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(property=property_obj)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        video_file = request.FILES.get('video')
+        if not video_file:
+            return Response({'error': 'No video file provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            result = cloudinary.uploader.upload(
+                video_file,
+                folder='homlink/videos',
+                resource_type='video',
+            )
+            logger.info(f'Cloudinary video upload OK: {result.get("secure_url")}')
+        except Exception as e:
+            logger.error(f'Cloudinary video upload FAILED: {str(e)}')
+            return Response({'error': f'Video upload failed: {str(e)}'}, status=status.HTTP_502_BAD_GATEWAY)
+
+        prop_video = PropertyVideo.objects.create(
+            property=property_obj,
+            video=result['secure_url'],
+            title=request.data.get('title', ''),
+            description=request.data.get('description', ''),
+            duration_seconds=int(request.data.get('duration_seconds', 60)),
+            order=property_obj.videos.count(),
+        )
+        return Response(PropertyVideoSerializer(prop_video).data, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get'])
     def featured(self, request):

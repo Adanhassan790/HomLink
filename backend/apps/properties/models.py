@@ -261,10 +261,10 @@ class PropertyVideo(models.Model):
     """Video tours for properties - maximum 3 videos, 60 seconds each"""
     
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='videos')
-    video = models.FileField(upload_to='properties/videos/')
+    video = models.URLField(max_length=500)
     title = models.CharField(max_length=150, blank=True)
     description = models.TextField(blank=True)
-    duration_seconds = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(60)])
+    duration_seconds = models.PositiveIntegerField(default=60, validators=[MinValueValidator(1), MaxValueValidator(60)])
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     

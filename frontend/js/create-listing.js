@@ -568,6 +568,7 @@ window.submitListing = async () => {
 
         if (createdPropertyId) {
             await uploadAllPhotos(createdPropertyId);
+            await uploadAllVideos(createdPropertyId);
             if (editMode) {
                 const h2 = document.querySelector('#step-10 .success-card h2');
                 const p  = document.querySelector('#step-10 .success-card p');
@@ -624,6 +625,31 @@ async function createPropertyDraft() {
     } catch (err) {
         showError('Error saving listing: ' + err.message);
         return null;
+    }
+}
+
+async function uploadAllVideos(propertyId) {
+    const token = getLocalStorage('access_token');
+    for (const [slot, file] of Object.entries(uploadedVideos)) {
+        if (!file) continue;
+        const fd = new FormData();
+        fd.append('video', file);
+        fd.append('title', slot.charAt(0).toUpperCase() + slot.slice(1) + ' Tour');
+        fd.append('duration_seconds', 60);
+        try {
+            const res = await fetch(`${API}/properties/properties/${propertyId}/add_video/`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+                body: fd,
+            });
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                console.error(`Video upload failed [${res.status}]:`, errData);
+                showError(`Video upload failed: ${errData.error || 'Unknown error'}`);
+            }
+        } catch (err) {
+            console.error('Video upload network error:', err);
+        }
     }
 }
 
