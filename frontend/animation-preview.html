@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HomLink Hero Animation Preview</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+    /* ── HERO ── */
+    .hl-hero {
+        position: relative;
+        min-height: 100vh;
+        background: linear-gradient(155deg, #0B1826 0%, #1A2B4A 50%, #12382A 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        color: #fff;
+        text-align: center;
+        padding: 6rem 1.5rem 5rem;
+    }
+
+    /* dot grid */
+    .hl-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+        background-size: 32px 32px;
+        pointer-events: none;
+    }
+
+    /* ── ANIMATION 1: floating glow blobs ── */
+    .glow-blob {
+        position: absolute;
+        top: -120px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 700px;
+        height: 400px;
+        background: radial-gradient(ellipse, rgba(27,127,79,0.28) 0%, transparent 70%);
+        pointer-events: none;
+        animation: floatGlow 6s ease-in-out infinite;
+    }
+
+    @keyframes floatGlow {
+        0%   { transform: translateX(-50%) translateY(0px)   scale(1); }
+        33%  { transform: translateX(-46%) translateY(18px)  scale(1.06); }
+        66%  { transform: translateX(-54%) translateY(-12px) scale(0.96); }
+        100% { transform: translateX(-50%) translateY(0px)   scale(1); }
+    }
+
+    .glow-blob-2 {
+        position: absolute;
+        bottom: -80px;
+        right: -60px;
+        width: 400px;
+        height: 300px;
+        background: radial-gradient(ellipse, rgba(74,222,128,0.08) 0%, transparent 70%);
+        pointer-events: none;
+        animation: floatGlow2 8s ease-in-out infinite;
+    }
+
+    @keyframes floatGlow2 {
+        0%   { transform: translateY(0px)   scale(1); }
+        50%  { transform: translateY(-20px) scale(1.08); }
+        100% { transform: translateY(0px)   scale(1); }
+    }
+
+    /* ── ANIMATION 2: floating particles ── */
+    .particles {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .particle {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.18);
+        animation: floatParticle linear infinite;
+    }
+
+    /* each particle gets unique position/size/speed via inline style */
+    @keyframes floatParticle {
+        0%   { transform: translateY(0);       opacity: 0; }
+        10%  { opacity: 1; }
+        90%  { opacity: 1; }
+        100% { transform: translateY(-120px);  opacity: 0; }
+    }
+
+    .hl-hero-inner {
+        position: relative;
+        z-index: 1;
+        max-width: 720px;
+        width: 100%;
+    }
+
+    /* ── ANIMATION 3: entrance fade-up ── */
+    .fade-up {
+        opacity: 0;
+        transform: translateY(24px);
+        animation: fadeUp 0.7s ease forwards;
+    }
+
+    @keyframes fadeUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hl-hero-pill  { animation-delay: 0.1s; }
+    .hl-hero-title { animation-delay: 0.25s; }
+    .hl-hero-sub   { animation-delay: 0.4s; }
+    .hl-search     { animation-delay: 0.55s; }
+    .hl-stats      { animation-delay: 0.7s; }
+
+    /* pill */
+    .hl-hero-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: rgba(255,255,255,0.75);
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        padding: 0.35rem 0.9rem;
+        border-radius: 100px;
+        margin-bottom: 1.5rem;
+    }
+
+    /* ── ANIMATION 4: pulsing dot ── */
+    .pill-dot {
+        width: 8px; height: 8px;
+        background: #4ade80;
+        border-radius: 50%;
+        animation: pulseDot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulseDot {
+        0%, 100% { opacity: 1;   transform: scale(1); }
+        50%       { opacity: 0.4; transform: scale(0.65); }
+    }
+
+    /* headline */
+    .hl-hero-title {
+        font-size: clamp(2.1rem, 5vw, 3.5rem);
+        font-weight: 800;
+        line-height: 1.12;
+        color: #fff;
+        margin: 0 0 1.1rem;
+        letter-spacing: -0.025em;
+    }
+
+    /* ── ANIMATION 5: shimmer sweep on em text ── */
+    .hl-hero-title em {
+        font-style: normal;
+        color: #4ade80;
+        position: relative;
+        display: inline-block;
+        overflow: hidden;
+    }
+
+    .hl-hero-title em::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 60%;
+        height: 100%;
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255,255,255,0.45) 50%,
+            transparent 100%
+        );
+        transform: skewX(-20deg);
+        animation: shimmer 0.8s ease forwards;
+        animation-delay: 0.9s; /* fires just after headline fades in */
+    }
+
+    @keyframes shimmer {
+        0%   { left: -80%; }
+        100% { left: 130%; }
+    }
+
+    /* subtext */
+    .hl-hero-sub {
+        font-size: 1.05rem;
+        color: rgba(255,255,255,0.6);
+        margin: 0 0 2.5rem;
+        line-height: 1.65;
+    }
+
+    /* search bar */
+    .hl-search {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr auto;
+        margin-bottom: 2.75rem;
+    }
+
+    .hl-search-field {
+        padding: 1rem 1.25rem 0.85rem;
+        border-right: 1px solid #f0f0f0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .hl-search-field label {
+        font-size: 0.67rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #6b7280;
+        margin-bottom: 0.3rem;
+    }
+
+    .hl-search-field select,
+    .hl-search-field input {
+        border: none;
+        outline: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #111;
+        background: transparent;
+        padding: 0;
+    }
+
+    .hl-search-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0 1.5rem;
+        background: #1A2B4A;
+        color: #fff;
+        border: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.2s;
+    }
+    .hl-search-btn:hover { background: #4ade80; color: #0B1826; }
+
+    /* stats */
+    .hl-stats {
+        display: flex;
+        justify-content: center;
+        gap: 2.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 3.5rem;
+    }
+
+    .hl-stat-item { display: flex; flex-direction: column; align-items: center; }
+
+    /* ── ANIMATION 6: count-up (JS) ── */
+    .hl-stat-num {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #4ade80;
+    }
+
+    .hl-stat-label {
+        font-size: 0.75rem;
+        color: rgba(255,255,255,0.5);
+        margin-top: 0.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* ── ANIMATION 7: scroll indicator ── */
+    .scroll-indicator {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3rem;
+        opacity: 0;
+        animation: fadeIn 0.5s ease forwards 1.4s;
+        transition: opacity 0.4s;
+        cursor: default;
+        z-index: 2;
+    }
+
+    .scroll-indicator span {
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.35);
+    }
+
+    .scroll-chevron {
+        width: 22px;
+        height: 22px;
+        border-right: 2px solid rgba(255,255,255,0.3);
+        border-bottom: 2px solid rgba(255,255,255,0.3);
+        transform: rotate(45deg);
+        animation: bounceChevron 1.6s ease-in-out infinite;
+        animation-delay: 1.8s;
+    }
+
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+
+    @keyframes bounceChevron {
+        0%, 100% { transform: rotate(45deg) translateY(0); }
+        50%       { transform: rotate(45deg) translateY(6px); }
+    }
+
+    /* replay button */
+    .replay-btn {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #fff;
+        padding: 0.6rem 1.2rem;
+        border-radius: 100px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        backdrop-filter: blur(8px);
+        transition: background 0.2s;
+        z-index: 100;
+    }
+    .replay-btn:hover { background: rgba(255,255,255,0.22); }
+
+    @media (max-width: 600px) {
+        .hl-search { grid-template-columns: 1fr; }
+        .hl-search-field { border-right: none; border-bottom: 1px solid #f0f0f0; }
+        .hl-search-btn { padding: 1rem; justify-content: center; }
+    }
+</style>
+</head>
+<body>
+
+<section class="hl-hero" id="hl-hero">
+
+    <!-- ANIMATION 1: floating glow blobs -->
+    <div class="glow-blob"></div>
+    <div class="glow-blob-2"></div>
+
+    <!-- ANIMATION 2: floating particles (built by JS below) -->
+    <div class="particles" id="particles"></div>
+
+    <div class="hl-hero-inner">
+
+        <div class="hl-hero-pill fade-up">
+            <!-- ANIMATION 4: pulsing dot -->
+            <div class="pill-dot"></div>
+            Kilifi County, Kenya
+        </div>
+
+        <h1 class="hl-hero-title fade-up">
+            Find Your Room in<br>
+            <!-- ANIMATION 5: shimmer sweep fires via CSS ::after -->
+            <em>Kilifi County</em>
+        </h1>
+
+        <p class="hl-hero-sub fade-up">
+            Verified, affordable accommodation in Kilifi —<br>trusted by tenants and landlords alike.
+        </p>
+
+        <form class="hl-search fade-up">
+            <div class="hl-search-field">
+                <label>Area</label>
+                <select><option>All Areas</option><option>Mnarani</option><option>Bofa</option></select>
+            </div>
+            <div class="hl-search-field">
+                <label>Room Type</label>
+                <select><option>Any Type</option><option>Single Room</option><option>Bedsitter</option></select>
+            </div>
+            <div class="hl-search-field">
+                <label>Max Rent (KES)</label>
+                <input type="number" placeholder="e.g. 8,000">
+            </div>
+            <button type="button" class="hl-search-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Search
+            </button>
+        </form>
+
+        <!-- ANIMATION 6: count-up numbers -->
+        <div class="hl-stats fade-up">
+            <div class="hl-stat-item">
+                <span class="hl-stat-num" data-target="250">0</span>
+                <span class="hl-stat-label">Listings</span>
+            </div>
+            <div class="hl-stat-item">
+                <span class="hl-stat-num" data-target="120">0</span>
+                <span class="hl-stat-label">Landlords</span>
+            </div>
+            <div class="hl-stat-item">
+                <span class="hl-stat-num" data-target="500">0</span>
+                <span class="hl-stat-label">Happy Tenants</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ANIMATION 7: scroll indicator -->
+    <div class="scroll-indicator" id="scroll-indicator">
+        <span>Scroll</span>
+        <div class="scroll-chevron"></div>
+    </div>
+
+</section>
+
+<button class="replay-btn" onclick="replayAnimation()">↺ Replay Animation</button>
+
+<script>
+    // ── ANIMATION 2: Spawn floating particles ──
+    function spawnParticles() {
+        const container = document.getElementById('particles');
+        container.innerHTML = '';
+
+        const count = 12;
+        for (let i = 0; i < count; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+
+            const size    = Math.random() * 3 + 2;        // 2–5px
+            const left    = Math.random() * 100;           // 0–100%
+            const bottom  = Math.random() * 60;            // start at various heights
+            const delay   = Math.random() * 6;             // stagger start
+            const duration= Math.random() * 8 + 10;       // 10–18s drift
+            const opacity = (Math.random() * 0.12 + 0.04).toFixed(2); // 4–16% opacity
+
+            p.style.cssText = `
+                width: ${size}px;
+                height: ${size}px;
+                left: ${left}%;
+                bottom: ${bottom}%;
+                background: rgba(255,255,255,${opacity});
+                animation-duration: ${duration}s;
+                animation-delay: ${delay}s;
+            `;
+            container.appendChild(p);
+        }
+    }
+
+    spawnParticles();
+
+    // ── ANIMATION 6: Count-up for stats ──
+    function countUp(el) {
+        const target   = parseInt(el.dataset.target);
+        const duration = 1400;
+        const start    = performance.now();
+
+        function step(now) {
+            const elapsed  = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased    = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.floor(eased * target) + (progress >= 1 ? '+' : '');
+            if (progress < 1) requestAnimationFrame(step);
+        }
+
+        requestAnimationFrame(step);
+    }
+
+    // Fire count-up after stats fade in
+    setTimeout(() => {
+        document.querySelectorAll('.hl-stat-num').forEach(countUp);
+    }, 1100);
+
+    // ── ANIMATION 7: Hide scroll indicator on scroll ──
+    window.addEventListener('scroll', () => {
+        const ind = document.getElementById('scroll-indicator');
+        if (ind) ind.style.opacity = window.scrollY > 40 ? '0' : '';
+    }, { passive: true });
+
+    // ── Replay button ──
+    function replayAnimation() {
+        // Reset fade-up elements
+        document.querySelectorAll('.fade-up').forEach(el => {
+            el.style.animation = 'none';
+            el.style.opacity   = '0';
+            el.style.transform = 'translateY(24px)';
+        });
+
+        // Reset stat numbers
+        document.querySelectorAll('.hl-stat-num').forEach(el => el.textContent = '0');
+
+        // Reset shimmer on em (remove/re-add the element to restart CSS animation)
+        const em = document.querySelector('.hl-hero-title em');
+        if (em) {
+            em.style.overflow = 'visible'; // briefly hide ::after
+            setTimeout(() => { em.style.overflow = ''; }, 50);
+        }
+
+        // Reset scroll indicator
+        const ind = document.getElementById('scroll-indicator');
+        if (ind) { ind.style.animation = 'none'; ind.style.opacity = '0'; }
+
+        // Re-spawn particles
+        spawnParticles();
+
+        // Re-trigger all animations
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.fade-up').forEach(el => {
+                    el.style.animation = '';
+                    el.style.opacity   = '';
+                    el.style.transform = '';
+                });
+
+                if (ind) {
+                    ind.style.animation = '';
+                    ind.style.opacity   = '';
+                }
+
+                setTimeout(() => {
+                    document.querySelectorAll('.hl-stat-num').forEach(countUp);
+                }, 1100);
+            });
+        });
+    }
+</script>
+
+</body>
+</html>

@@ -41,17 +41,62 @@
             pointer-events: none;
         }
 
-        /* green glow top */
-        .hl-hero::after {
-            content: '';
+        /* ── ANIMATION 1: floating glow blobs (replaces static ::after) ── */
+        .glow-blob {
             position: absolute;
             top: -120px;
             left: 50%;
-            transform: translateX(-50%);
             width: 700px;
             height: 400px;
-            background: radial-gradient(ellipse, rgba(27,127,79,0.22) 0%, transparent 70%);
+            background: radial-gradient(ellipse, rgba(27,127,79,0.26) 0%, transparent 70%);
             pointer-events: none;
+            animation: floatGlow 6s ease-in-out infinite;
+        }
+
+        @keyframes floatGlow {
+            0%   { transform: translateX(-50%) translateY(0px)   scale(1); }
+            33%  { transform: translateX(-46%) translateY(18px)  scale(1.06); }
+            66%  { transform: translateX(-54%) translateY(-12px) scale(0.96); }
+            100% { transform: translateX(-50%) translateY(0px)   scale(1); }
+        }
+
+        .glow-blob-2 {
+            position: absolute;
+            bottom: -80px;
+            right: -60px;
+            width: 400px;
+            height: 300px;
+            background: radial-gradient(ellipse, rgba(74,222,128,0.07) 0%, transparent 70%);
+            pointer-events: none;
+            animation: floatGlow2 8s ease-in-out infinite;
+        }
+
+        @keyframes floatGlow2 {
+            0%   { transform: translateY(0px)   scale(1); }
+            50%  { transform: translateY(-20px) scale(1.08); }
+            100% { transform: translateY(0px)   scale(1); }
+        }
+
+        /* ── ANIMATION 2: floating particles ── */
+        .particles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.14);
+            animation: floatParticle linear infinite;
+        }
+
+        @keyframes floatParticle {
+            0%   { transform: translateY(0);       opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { transform: translateY(-120px);  opacity: 0; }
         }
 
         .hl-hero-inner {
@@ -60,6 +105,23 @@
             max-width: 720px;
             width: 100%;
         }
+
+        /* ── ANIMATION 3: entrance fade-up ── */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(24px);
+            animation: fadeUp 0.7s ease forwards;
+        }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hl-hero-pill  { animation-delay: 0.1s; }
+        .hl-hero-title { animation-delay: 0.25s; }
+        .hl-hero-sub   { animation-delay: 0.4s; }
+        .hl-search     { animation-delay: 0.55s; }
+        .hl-stats      { animation-delay: 0.7s; }
 
         .hl-hero-pill {
             display: inline-flex;
@@ -77,6 +139,21 @@
             margin-bottom: 1.5rem;
         }
 
+        /* ── ANIMATION 4: pulsing dot ── */
+        .pill-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulseDot 2s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1;   transform: scale(1); }
+            50%       { opacity: 0.4; transform: scale(0.65); }
+        }
+
         .hl-hero-title {
             font-size: clamp(2.1rem, 5vw, 3.5rem);
             font-weight: 800;
@@ -86,9 +163,31 @@
             letter-spacing: -0.025em;
         }
 
+        /* ── ANIMATION 5: shimmer sweep on em text ── */
         .hl-hero-title em {
             font-style: normal;
             color: #4ade80;
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+        }
+
+        .hl-hero-title em::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.45) 50%, transparent 100%);
+            transform: skewX(-20deg);
+            animation: shimmer 0.8s ease forwards;
+            animation-delay: 0.9s;
+        }
+
+        @keyframes shimmer {
+            0%   { left: -80%; }
+            100% { left: 130%; }
         }
 
         .hl-hero-sub {
@@ -96,6 +195,47 @@
             color: rgba(255,255,255,0.6);
             margin: 0 0 2.5rem;
             line-height: 1.65;
+        }
+
+        /* ── ANIMATION 7: scroll indicator ── */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards 1.4s;
+            transition: opacity 0.4s;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .scroll-indicator span {
+            font-size: 0.62rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .scroll-chevron {
+            width: 20px;
+            height: 20px;
+            border-right: 2px solid rgba(255,255,255,0.25);
+            border-bottom: 2px solid rgba(255,255,255,0.25);
+            transform: rotate(45deg);
+            animation: bounceChevron 1.6s ease-in-out infinite;
+            animation-delay: 1.8s;
+        }
+
+        @keyframes fadeIn  { to { opacity: 1; } }
+
+        @keyframes bounceChevron {
+            0%, 100% { transform: rotate(45deg) translateY(0); }
+            50%       { transform: rotate(45deg) translateY(6px); }
         }
 
         /* Search card */
@@ -885,22 +1025,31 @@
          HERO
     ================================================ -->
     <section class="hl-hero" id="hl-hero">
+        <!-- ANIMATION 1: floating glow blobs -->
+        <div class="glow-blob"></div>
+        <div class="glow-blob-2"></div>
+
+        <!-- ANIMATION 2: floating particles (populated by JS) -->
+        <div class="particles" id="hero-particles"></div>
+
         <div class="hl-hero-inner">
-            <div class="hl-hero-pill">
-                <svg width="8" height="8" viewBox="0 0 8 8" fill="#4ade80"><circle cx="4" cy="4" r="4"/></svg>
+            <!-- ANIMATION 3 & 4: fade-up entrance + pulsing dot -->
+            <div class="hl-hero-pill fade-up">
+                <div class="pill-dot"></div>
                 Kilifi County, Kenya
             </div>
 
-            <h1 class="hl-hero-title">
+            <!-- ANIMATION 3 & 5: fade-up + shimmer sweep on em -->
+            <h1 class="hl-hero-title fade-up">
                 Find Your Room in<br>
                 <em>Kilifi County</em>
             </h1>
 
-            <p class="hl-hero-sub">
+            <p class="hl-hero-sub fade-up">
                 Verified, affordable accommodation in Kilifi — trusted by tenants and landlords alike.
             </p>
 
-            <form class="hl-search" id="hero-search-form">
+            <form class="hl-search fade-up" id="hero-search-form">
                 <div class="hl-search-field">
                     <label>Area</label>
                     <select id="area-filter" name="location_area">
@@ -928,24 +1077,31 @@
                 </button>
             </form>
 
-            <div class="hl-stats">
+            <!-- ANIMATION 6: count-up numbers -->
+            <div class="hl-stats fade-up">
                 <div class="hl-stat-item">
-                    <span class="hl-stat-num">250+</span>
+                    <span class="hl-stat-num" data-target="250">250+</span>
                     <span class="hl-stat-label">Listings</span>
                 </div>
                 <div class="hl-stat-item">
-                    <span class="hl-stat-num">50+</span>
+                    <span class="hl-stat-num" data-target="50">50+</span>
                     <span class="hl-stat-label">Verified Landlords</span>
                 </div>
                 <div class="hl-stat-item">
-                    <span class="hl-stat-num">10+</span>
+                    <span class="hl-stat-num" data-target="10">10+</span>
                     <span class="hl-stat-label">Areas</span>
                 </div>
                 <div class="hl-stat-item">
-                    <span class="hl-stat-num">500+</span>
+                    <span class="hl-stat-num" data-target="500">500+</span>
                     <span class="hl-stat-label">Tenants Helped</span>
                 </div>
             </div>
+        </div>
+
+        <!-- ANIMATION 7: scroll indicator -->
+        <div class="scroll-indicator" id="scroll-indicator">
+            <span>Scroll</span>
+            <div class="scroll-chevron"></div>
         </div>
     </section>
 
@@ -1168,5 +1324,57 @@
     <footer id="app-footer"></footer>
 
     <script type="module" src="js/main.js"></script>
+
+    <script>
+        /* ── Hero animations (non-module, runs immediately) ── */
+
+        // ANIMATION 2: spawn floating particles
+        (function spawnParticles() {
+            const container = document.getElementById('hero-particles');
+            if (!container) return;
+            for (let i = 0; i < 12; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size     = Math.random() * 3 + 2;
+                const left     = Math.random() * 100;
+                const bottom   = Math.random() * 70;
+                const delay    = Math.random() * 6;
+                const duration = Math.random() * 8 + 10;
+                const opacity  = (Math.random() * 0.1 + 0.04).toFixed(2);
+                p.style.cssText = `width:${size}px;height:${size}px;left:${left}%;bottom:${bottom}%;background:rgba(255,255,255,${opacity});animation-duration:${duration}s;animation-delay:${delay}s;`;
+                container.appendChild(p);
+            }
+        })();
+
+        // ANIMATION 6: count-up for stat numbers
+        (function initCountUp() {
+            function countUp(el) {
+                const target   = parseInt(el.dataset.target, 10);
+                const duration = 1400;
+                const start    = performance.now();
+                function step(now) {
+                    const progress = Math.min((now - start) / duration, 1);
+                    const eased    = 1 - Math.pow(1 - progress, 3);
+                    el.textContent = Math.floor(eased * target) + '+';
+                    if (progress < 1) requestAnimationFrame(step);
+                }
+                requestAnimationFrame(step);
+            }
+
+            // Fire after stats fade-up completes (700ms delay + 700ms animation)
+            setTimeout(function() {
+                document.querySelectorAll('.hl-stat-num[data-target]').forEach(countUp);
+            }, 1400);
+        })();
+
+        // ANIMATION 7: hide scroll indicator on scroll
+        (function initScrollIndicator() {
+            var ind = document.getElementById('scroll-indicator');
+            if (!ind) return;
+            window.addEventListener('scroll', function() {
+                ind.style.opacity = window.scrollY > 50 ? '0' : '';
+            }, { passive: true });
+        })();
+    </script>
 </body>
 </html>
