@@ -1,6 +1,8 @@
-import { renderNavbar, showSuccess, showError, formatCurrency, formatDateShort } from './utils.js';
+import { renderNavbar, showSuccess, showError, formatCurrency, formatDateShort, getLocalStorage } from './utils.js';
 import { getMyListings, deleteProperty, getInquiries, updateProfile as apiUpdateProfile, getProfile } from './api.js';
 import { getCurrentUser, requireRole, clearTokens } from './auth.js';
+
+const API = `${window.location.protocol}//${window.location.host}/api`;
 
 let allListings = [];
 let allInquiries = [];
@@ -99,16 +101,26 @@ function updateStats() {
 }
 
 function buildPropertyRow(listing) {
-    const img   = listing.images?.[0]?.image || PLACEHOLDER;
-    const rent  = formatCurrency ? formatCurrency(listing.rent_amount) : `KES ${parseInt(listing.rent_amount).toLocaleString()}`;
-    const area  = listing.location_area_name || listing.estate || 'Kilifi';
-    const inqs  = allInquiries.filter(i => i.property === listing.id || i.property_id === listing.id).length;
+    const img      = listing.images?.[0]?.image || PLACEHOLDER;
+    const rent     = formatCurrency ? formatCurrency(listing.rent_amount) : `KES ${parseInt(listing.rent_amount).toLocaleString()}`;
+    const area     = listing.location_area_name || listing.estate || 'Kilifi';
+    const inqs     = allInquiries.filter(i => i.property === listing.id || i.property_id === listing.id).length;
+    const vidCount = (listing.videos || []).length;
+    const maxVids  = 3;
 
     let statusBadge = '';
     if (!listing.is_approved) statusBadge += '<span class="prop-badge badge-pending">Pending</span>';
     else if (!listing.is_available) statusBadge += '<span class="prop-badge badge-occupied">Occupied</span>';
     else statusBadge += '<span class="prop-badge badge-active">Active</span>';
     if (listing.is_featured) statusBadge += '<span class="prop-badge badge-featured">Featured</span>';
+    statusBadge += `<span class="prop-badge" style="background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd;">🎬 ${vidCount}/${maxVids} videos</span>`;
+
+    const addVideoBtn = vidCount < maxVids
+        ? `<label class="btn btn-sm btn-secondary" style="cursor:pointer;" title="Upload a video for this listing">
+               🎬 Add Video
+               <input type="file" accept="video/*" style="display:none;" onchange="uploadVideoForListing(${listing.id}, this)">
+           </label>`
+        : '';
 
     return `
         <div class="property-row" data-status="${!listing.is_approved ? 'pending' : (listing.is_available ? 'active' : 'occupied')}">
@@ -126,6 +138,7 @@ function buildPropertyRow(listing) {
             <div class="prop-actions">
                 <a href="property.html?id=${listing.id}" class="btn btn-sm btn-secondary">View</a>
                 <a href="create-listing.html?id=${listing.id}" class="btn btn-sm btn-secondary">Edit</a>
+                ${addVideoBtn}
                 ${listing.is_available && listing.is_approved
                     ? `<button class="btn btn-sm btn-secondary" onclick="markOccupied(${listing.id})">Mark Occupied</button>`
                     : ''}
@@ -133,6 +146,38 @@ function buildPropertyRow(listing) {
             </div>
         </div>`;
 }
+
+window.uploadVideoForListing = async (propertyId, input) => {
+    if (!input.files.length) return;
+    const file = input.files[0];
+    const label = input.closest('label');
+    if (label) { label.textContent = '⏳ Uploading…'; label.style.pointerEvents = 'none'; }
+
+    const fd = new FormData();
+    fd.append('video', file);
+    fd.append('title', 'Property Tour');
+    fd.append('duration_seconds', 60);
+
+    try {
+        const token = getLocalStorage('access_token');
+        const res = await fetch(`${API}/properties/properties/${propertyId}/add_video/`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+            body: fd,
+        });
+        if (res.ok) {
+            showSuccess('Video uploaded! Reload the page to see the updated count.');
+            if (label) { label.textContent = '✅ Uploaded'; }
+        } else {
+            const err = await res.json().catch(() => ({}));
+            showError(`Video upload failed: ${err.error || `HTTP ${res.status}`}`);
+            if (label) { label.textContent = '🎬 Add Video'; label.style.pointerEvents = ''; }
+        }
+    } catch (err) {
+        showError(`Network error: ${err.message}`);
+        if (label) { label.textContent = '🎬 Add Video'; label.style.pointerEvents = ''; }
+    }
+};
 
 function renderRecentListings() {
     const container = document.getElementById('recent-listings-container');
